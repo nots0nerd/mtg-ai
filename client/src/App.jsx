@@ -83,9 +83,13 @@ function App() {
       const receivedCards = cards.length;
       
       console.log('📦 Received cards:', receivedCards, 'of', totalCards);
+      console.log('🔍 isClientPagination flag:', response.data.pagination?.isClientPagination);
       
-      // Se Scryfall ha mandato TUTTE le carte in una volta (pagination client-side)
-      if (receivedCards === totalCards && totalCards > 20) {
+      // 🆕 Se l'API ha flaggato come client-side pagination O se abbiamo tutte le carte
+      const needsClientPagination = response.data.pagination?.isClientPagination || 
+                                    (receivedCards === totalCards && totalCards > 20);
+      
+      if (needsClientPagination) {
         console.log('🔄 Client-side pagination needed');
         
         // Salva tutte le carte
