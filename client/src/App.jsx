@@ -64,7 +64,11 @@ function App() {
         page: pageNum
       });
 
-      const response = await axios.post('http://localhost:3001/api/search', {
+      const apiUrl = import.meta.env.DEV 
+        ? 'http://localhost:3001/api/search'
+        : '/api/search';
+      
+      const response = await axios.post(apiUrl, {
         prompt: promptToUse,
         format: filters.format,
         order: filters.order,
@@ -165,7 +169,11 @@ function App() {
         return;
       }
 
-      const response = await axios.post('http://localhost:3001/api/search', {
+      const apiUrl = import.meta.env.DEV 
+        ? 'http://localhost:3001/api/search'
+        : '/api/search';
+      
+      const response = await axios.post(apiUrl, {
         prompt: promptToUse,
         format: filters.format,
         order: filters.order,
