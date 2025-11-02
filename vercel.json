@@ -17,13 +17,12 @@
     {
       "src": "/api/search",
       "dest": "/api/search.js"
-    },
+    }
+  ],
+  "rewrites": [
     {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/client/dist/$1"
+      "source": "/(.*)",
+      "destination": "/client/dist/$1"
     }
   ]
 }
