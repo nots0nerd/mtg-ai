@@ -196,8 +196,6 @@ Natural Language → Scryfall Query:
 - "instant that draws cards for 2 mana" → t:instant o:draw o:card mv=2
 
 When a user asks for cards, convert their natural language to proper Scryfall syntax following these rules.`;
-<｜tool▁calls▁begin｜><｜tool▁call▁begin｜>
-read_file
 
 module.exports = async (req, res) => {
   // Abilita CORS
