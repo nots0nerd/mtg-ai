@@ -125,11 +125,35 @@ function App() {
         }
       }
     } catch (err) {
-      setError(
-        err.response?.data?.error || 
-        err.message || 
-        'Errore durante la ricerca delle carte'
-      );
+      // Gestisce errori in formato stringa o oggetto
+      let errorMessage = 'Errore durante la ricerca delle carte';
+      
+      if (err.response?.data) {
+        // Se data è una stringa, usala direttamente
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        }
+        // Se data è un oggetto, estrai error o message
+        else if (err.response.data.error) {
+          errorMessage = typeof err.response.data.error === 'string' 
+            ? err.response.data.error 
+            : JSON.stringify(err.response.data.error);
+        }
+        else if (err.response.data.message) {
+          errorMessage = typeof err.response.data.message === 'string'
+            ? err.response.data.message
+            : JSON.stringify(err.response.data.message);
+        }
+        else if (err.response.data.details) {
+          errorMessage = typeof err.response.data.details === 'string'
+            ? err.response.data.details
+            : JSON.stringify(err.response.data.details);
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
       console.error('Search error:', err);
     } finally {
       setLoading(false);
