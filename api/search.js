@@ -244,18 +244,35 @@ module.exports = async (req, res) => {
     // Trasforma il prompt in query Scryfall usando Gemini
     let scryfallQuery;
     try {
+      console.log('🔑 Checking GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? 'Present' : 'MISSING');
+      
+      if (!process.env.GEMINI_API_KEY) {
+        throw new Error('GEMINI_API_KEY environment variable is not set');
+      }
+      
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
       
       const fullPrompt = `${SYSTEM_PROMPT}\n\nRichiesta utente: ${prompt}`;
       
-      console.log('Calling Gemini API...');
+      console.log('📞 Calling Gemini API...');
       
       const result = await model.generateContent(fullPrompt);
+      console.log('✅ Gemini API call successful');
+      
       const response = await result.response;
+      console.log('✅ Got response from Gemini');
       
       // ⚠️ response.text() può essere chiamato solo UNA volta!
-      const rawQuery = response.text();
+      let rawQuery;
+      try {
+        rawQuery = response.text();
+        console.log('✅ Got text from response');
+      } catch (textError) {
+        console.error('❌ Error calling response.text():', textError);
+        throw new Error(`Failed to extract text from Gemini response: ${textError.message}`);
+      }
+      
       console.log('📝 Raw Gemini response:', rawQuery);
       
       // Rimuovi markdown code blocks se presenti
@@ -263,9 +280,14 @@ module.exports = async (req, res) => {
       
       console.log('🔍 Cleaned query:', scryfallQuery);
       
+      if (!scryfallQuery || scryfallQuery.length === 0) {
+        throw new Error('Gemini returned an empty query');
+      }
+      
       // Valida la query generata
       try {
         validateScryfallQuery(scryfallQuery);
+        console.log('✅ Query validation passed');
       } catch (validationError) {
         console.error('❌ Query validation failed:', validationError.message);
         
@@ -298,10 +320,13 @@ module.exports = async (req, res) => {
       console.log('✅ Generated Scryfall query:', scryfallQuery);
     } catch (error) {
       console.error('❌ Error generating query:', error);
+      console.error('❌ Error name:', error.name);
+      console.error('❌ Error message:', error.message);
       console.error('❌ Error stack:', error.stack);
       return res.status(500).json({ 
         error: 'Failed to generate Scryfall query',
         details: error.message || 'Unknown error',
+        errorName: error.name,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
     }
@@ -322,15 +347,22 @@ module.exports = async (req, res) => {
     try {
       const scryfallUrl = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(finalQuery)}&page=${page}`;
       console.log('🔍 Calling Scryfall:', scryfallUrl);
+      console.log('🔍 Final query:', finalQuery);
       
       const scryfallResponse = await axios.get(scryfallUrl, {
         timeout: 10000
       });
 
+      console.log('✅ Scryfall API call successful, status:', scryfallResponse.status);
+
       const scryfallData = scryfallResponse.data;
+      console.log('📊 Scryfall response keys:', Object.keys(scryfallData));
+      
       const cards = scryfallData.data || [];
       const totalCards = scryfallData.total_cards || 0;
       const hasMore = scryfallData.has_more || false;
+      
+      console.log('📦 Cards received:', cards.length, 'Total:', totalCards, 'Has more:', hasMore);
 
       // 🆕 Se has_more è false ma ci sono più carte di quelle ricevute,
       // significa che Scryfall ha dato tutte le carte in una volta
