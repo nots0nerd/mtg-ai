@@ -253,12 +253,14 @@ module.exports = async (req, res) => {
       
       const result = await model.generateContent(fullPrompt);
       const response = await result.response;
-      scryfallQuery = response.text().trim();
+      
+      // ⚠️ response.text() può essere chiamato solo UNA volta!
+      const rawQuery = response.text();
+      console.log('📝 Raw Gemini response:', rawQuery);
       
       // Rimuovi markdown code blocks se presenti
-      scryfallQuery = scryfallQuery.replace(/^```[\w]*\n?/gm, '').replace(/```$/gm, '').trim();
+      scryfallQuery = rawQuery.trim().replace(/^```[\w]*\n?/gm, '').replace(/```$/gm, '').trim();
       
-      console.log('📝 Raw Gemini response:', response.text());
       console.log('🔍 Cleaned query:', scryfallQuery);
       
       // Valida la query generata
