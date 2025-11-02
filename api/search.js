@@ -225,6 +225,12 @@ module.exports = async (req, res) => {
       const response = await result.response;
       scryfallQuery = response.text().trim();
       
+      // Rimuovi markdown code blocks se presenti
+      scryfallQuery = scryfallQuery.replace(/^```[\w]*\n?/gm, '').replace(/```$/gm, '').trim();
+      
+      console.log('📝 Raw Gemini response:', response.text());
+      console.log('🔍 Cleaned query:', scryfallQuery);
+      
       // Valida la query generata
       try {
         validateScryfallQuery(scryfallQuery);
@@ -346,10 +352,12 @@ module.exports = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('❌ Unexpected error:', error);
+    console.error('❌ Error stack:', error.stack);
     return res.status(500).json({ 
       error: 'Internal server error',
-      details: error.message 
+      details: error.message || 'Unknown error',
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };
