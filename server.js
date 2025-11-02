@@ -134,7 +134,16 @@ SCRYFALL SYNTAX RULES:
       - o:create o:token → includes Treasure tokens, Food tokens, etc.
       - o:"creature token" → ONLY creature tokens ✅
    
-   d) Generic Effects (AVOID exact quotes - use multiple terms):
+   d) "Gives/Grants" Abilities (USE quotes for the phrase):
+      When searching for cards that GIVE or GRANT abilities to other things:
+      ✅ o:"gives flying" - exact phrase
+      ✅ o:"grants trample" - exact phrase
+      ✅ o:"gains haste" - exact phrase
+      ✅ o:"has haste" - exact phrase
+      ❌ WRONG: o:give o:flying (too broad, finds unrelated text)
+      ❌ WRONG: o:grant o:trample (too broad)
+
+   e) Generic Effects (AVOID exact quotes - use multiple terms):
       ❌ WRONG: o:"destroy target creature"
       ✅ CORRECT: o:destroy o:creature
       
@@ -294,9 +303,10 @@ Natural Language → Scryfall Query:
 - "creature with trample" → t:creature keyword:trample
 - "creature with lifelink" → t:creature keyword:lifelink
 
-✅ CORRECT - Cards that GIVE abilities (use o:):
-- "enchantment that gives haste" → t:enchantment o:haste o:give
-- "enchantment that grants flying" → t:enchantment o:flying o:grant
+✅ CORRECT - Cards that GIVE abilities (use o: with quotes):
+- "enchantment that gives haste" → t:enchantment o:"gives haste"
+- "enchantment that grants flying" → t:enchantment o:"grants flying"
+- "creature that gives trample" → t:creature o:"gives trample"
 
 ✅ CORRECT - Cards that DO the action (use o:):
 - "white creature that creates creature token" 
@@ -480,23 +490,34 @@ const handleSearch = async (req, res) => {
           timeout: 10000 // 10 secondi timeout per Scryfall
         });
       } catch (axiosError) {
-        // Axios gestisce gli errori HTTP in error.response
-        if (axiosError.response && axiosError.response.status === 422) {
-          console.log('⚠️ Scryfall 422: Requested page does not exist');
-          return res.status(400).json({
-            error: 'Page does not exist',
-            message: 'The requested page is out of range.',
+        // Gestisce sia 404 che 422 con code "not_found" (query senza risultati)
+        if ((axiosError.response?.status === 404 || axiosError.response?.status === 422) && 
+            axiosError.response?.data?.code === 'not_found') {
+          console.log('ℹ️ No cards found for query:', scryfallQuery);
+          return res.json({
             scryfall_query: scryfallQuery,
             results: [],
             pagination: {
               totalCards: 0,
               currentPage: 1,
               hasMore: false,
-              totalPages: 1,
+              totalPages: 0,
               cardsInPage: 0
-            }
+            },
+            message: 'No cards found matching your search'
           });
         }
+        
+        // Pagina fuori range (solo se page > 1)
+        if ((axiosError.response?.status === 404 || axiosError.response?.status === 422) && page > 1) {
+          console.log('⚠️ Page out of range:', page);
+          return res.status(400).json({
+            error: 'Page does not exist',
+            message: `Page ${page} is out of range`,
+            scryfall_query: scryfallQuery
+          });
+        }
+        
         throw axiosError; // Rilancia altri errori
       }
 

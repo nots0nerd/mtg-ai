@@ -124,7 +124,16 @@ SCRYFALL SYNTAX RULES:
       ✅ o:"dies" (triggers)
       ✅ o:"beginning of combat"
 
-   d) Generic Effects (AVOID exact quotes - use multiple terms):
+   d) "Gives/Grants" Abilities (USE quotes for the phrase):
+      When searching for cards that GIVE or GRANT abilities to other things:
+      ✅ o:"gives flying" - exact phrase
+      ✅ o:"grants trample" - exact phrase
+      ✅ o:"gains haste" - exact phrase
+      ✅ o:"has haste" - exact phrase
+      ❌ WRONG: o:give o:flying (too broad, finds unrelated text)
+      ❌ WRONG: o:grant o:trample (too broad)
+
+   e) Generic Effects (AVOID exact quotes - use multiple terms):
       ❌ WRONG: o:"destroy target creature"
       ✅ CORRECT: o:destroy o:creature
 
@@ -181,9 +190,10 @@ Natural Language → Scryfall Query:
 - "creature with trample" → t:creature keyword:trample
 - "creature with lifelink" → t:creature keyword:lifelink
 
-✅ CORRECT - Cards that GIVE abilities (use o:):
-- "enchantment that gives haste" → t:enchantment o:haste o:give
-- "enchantment that grants flying" → t:enchantment o:flying o:grant
+✅ CORRECT - Cards that GIVE abilities (use o: with quotes):
+- "enchantment that gives haste" → t:enchantment o:"gives haste"
+- "enchantment that grants flying" → t:enchantment o:"grants flying"
+- "creature that gives trample" → t:creature o:"gives trample"
 
 ✅ CORRECT - Cards that DO the action (use o:):
 - "red creature with haste that creates treasure tokens"
@@ -386,8 +396,10 @@ module.exports = async (req, res) => {
         }
       });
     } catch (error) {
-      if (error.response?.status === 422 && error.response?.data?.code === 'not_found') {
-        // Nessuna carta trovata
+      // Gestisce sia 404 che 422 con code "not_found" (query senza risultati)
+      if ((error.response?.status === 404 || error.response?.status === 422) && 
+          error.response?.data?.code === 'not_found') {
+        console.log('ℹ️ No cards found for query:', finalQuery);
         return res.json({
           scryfall_query: finalQuery,
           results: [],
@@ -397,12 +409,13 @@ module.exports = async (req, res) => {
             hasMore: false,
             totalPages: 0,
             cardsInPage: 0
-          }
+          },
+          message: 'No cards found matching your search'
         });
       }
       
-      if (error.response?.status === 404 || (error.response?.status === 422 && page > 1)) {
-        // Pagina non esiste
+      // Pagina fuori range (solo se page > 1)
+      if ((error.response?.status === 404 || error.response?.status === 422) && page > 1) {
         return res.status(400).json({
           error: 'Page does not exist',
           message: `Page ${page} is out of range`

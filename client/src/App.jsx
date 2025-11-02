@@ -480,12 +480,44 @@ function App() {
           <PaginationControls showButtons={true} />
         )}
 
+        {/* No Results Message */}
+        {displayCards.length === 0 && !loading && scryfallQuery && (
+          <div style={{
+            textAlign: 'center',
+            padding: '3rem 2rem',
+            color: '#94a3b8',
+            fontSize: '1.1rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.02)',
+            borderRadius: '12px',
+            margin: '2rem 0'
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
+            <div style={{ fontWeight: '600', marginBottom: '0.5rem', color: '#cbd5e1' }}>
+              Nessuna carta trovata
+            </div>
+            <div style={{ fontSize: '0.95rem' }}>
+              Prova a modificare la tua ricerca o usa termini diversi
+            </div>
+            <div style={{ 
+              marginTop: '1rem', 
+              padding: '0.75rem', 
+              backgroundColor: 'rgba(59, 130, 246, 0.1)', 
+              borderRadius: '8px',
+              fontSize: '0.9rem',
+              fontFamily: 'monospace'
+            }}>
+              Query generata: {scryfallQuery}
+            </div>
+          </div>
+        )}
+
         {/* Results Grid */}
         {displayCards.length > 0 && !loading && (
           <div className="results">
             <div className="results-count">
               Mostrando <span>{displayCards.length}</span> carte{pagination.totalCards > 0 ? ` su ${pagination.totalCards} totali` : ''}
             </div>
+            
             <div className="results-grid">
               {displayCards.map((card) => (
                   <div key={card.id} className="card-item">
