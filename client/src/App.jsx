@@ -193,9 +193,16 @@ function App() {
 
       setScryfallQuery(response.data.scryfall_query);
       const cards = response.data.results || [];
+      const totalCards = response.data.pagination?.totalCards || cards.length;
+      const receivedCards = cards.length;
+      
+      console.log('📦 loadPage - Received cards:', receivedCards, 'of', totalCards);
+      
+      // Limita displayCards a 20 per sicurezza
+      const cardsToShow = cards.slice(0, 20);
       
       setAllCards(cards);
-      setDisplayCards(cards);
+      setDisplayCards(cardsToShow);
       setResults(cards);
       
       // Aggiorna paginazione
