@@ -307,7 +307,8 @@ REMEMBER:
 When a user asks for cards, convert their natural language to proper Scryfall syntax following these rules.`;
 
 // Endpoint POST /api/search
-app.post('/api/search', async (req, res) => {
+// Gestisce sia /api/search (locale) che /search (Vercel rimuove /api)
+const handleSearch = async (req, res) => {
   try {
     const { prompt, format, order, direction, page = 1 } = req.body;
     
@@ -590,14 +591,23 @@ app.post('/api/search', async (req, res) => {
       details: error.message 
     });
   }
-});
+};
+
+// Registra le route (locale e Vercel)
+app.post('/api/search', handleSearch);
+app.post('/search', handleSearch);
 
 // Endpoint di test
 app.get('/', (req, res) => {
   res.json({ message: 'MTG Search API is running' });
 });
 
-// Avvia il server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Export per Vercel serverless functions
+module.exports = app;
+
+// Avvia il server solo in locale (non su Vercel)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
