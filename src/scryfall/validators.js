@@ -7,6 +7,7 @@
 
 const VALID_OPERATORS = [
   'o:', 'oracle:', 'fo:', 'fulloracle:',
+  'keyword:', // For searching cards that HAVE keyword abilities
   't:', 'type:',
   'c:', 'color:',
   'mv:', 'cmc:',
@@ -21,7 +22,7 @@ const VALID_OPERATORS = [
   'loy:', 'loyalty:',
 ];
 
-const INVALID_OPERATORS = ['kv:', 'keyword:', 'ability:', 'skill:'];
+const INVALID_OPERATORS = ['kv:', 'ability:', 'skill:'];
 
 // Formati validi MTG
 const VALID_FORMATS = [
@@ -86,23 +87,25 @@ function validateScryfallQuery(query) {
 
 /**
  * Common abilities mapping for reference.
- * Always use o: operator for abilities.
+ * Use keyword: for cards that HAVE the ability (possession).
+ * Use o: for cards that MENTION the ability in text.
  */
 const ABILITIES = {
-  flying: 'o:flying',
-  trample: 'o:trample',
-  haste: 'o:haste',
-  deathtouch: 'o:deathtouch',
-  lifelink: 'o:lifelink',
-  vigilance: 'o:vigilance',
-  reach: 'o:reach',
-  flash: 'o:flash',
-  'first strike': 'o:"first strike"',
-  'double strike': 'o:"double strike"',
-  hexproof: 'o:hexproof',
-  indestructible: 'o:indestructible',
-  shroud: 'o:shroud',
-  ward: 'o:ward',
+  // For cards WITH abilities (possession)
+  flying: 'keyword:flying',
+  trample: 'keyword:trample',
+  haste: 'keyword:haste',
+  deathtouch: 'keyword:deathtouch',
+  lifelink: 'keyword:lifelink',
+  vigilance: 'keyword:vigilance',
+  reach: 'keyword:reach',
+  flash: 'keyword:flash',
+  'first strike': 'keyword:"first strike"',
+  'double strike': 'keyword:"double strike"',
+  hexproof: 'keyword:hexproof',
+  indestructible: 'keyword:indestructible',
+  shroud: 'keyword:shroud',
+  ward: 'keyword:ward',
 };
 
 /**
