@@ -244,7 +244,7 @@ function App() {
   // Componente per controlli paginazione
   function PaginationControls({ showButtons = true }) {
     const canGoPrevious = pagination.currentPage > 1 && !loading;
-    const canGoNext = pagination.hasMore && !loading;
+    const canGoNext = (pagination.currentPage < pagination.totalPages || pagination.hasMore) && !loading;
 
     console.log('🔘 Button state:', {
       currentPage: pagination.currentPage,
@@ -278,7 +278,11 @@ function App() {
         {showButtons && pagination.totalPages > 1 && (
           <div className="pagination-controls">
             <button
-              onClick={() => loadPage(pagination.currentPage - 1)}
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('🔵 Previous clicked, currentPage:', pagination.currentPage);
+                loadPage(pagination.currentPage - 1);
+              }}
               disabled={!canGoPrevious}
               className="pagination-btn"
             >
@@ -290,7 +294,11 @@ function App() {
             </span>
 
             <button
-              onClick={() => loadPage(pagination.currentPage + 1)}
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('🔵 Next clicked, currentPage:', pagination.currentPage, 'totalPages:', pagination.totalPages);
+                loadPage(pagination.currentPage + 1);
+              }}
               disabled={!canGoNext}
               className="pagination-btn"
             >
