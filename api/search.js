@@ -4,7 +4,41 @@ const path = require('path');
 const fs = require('fs');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const axios = require('axios');
-const { validateScryfallQuery, validateFilters } = require('../src/scryfall/validators');
+
+// Import validators - usa percorso relativo dalla root del progetto
+let validateScryfallQuery, validateFilters;
+try {
+  const validators = require('../src/scryfall/validators');
+  validateScryfallQuery = validators.validateScryfallQuery;
+  validateFilters = validators.validateFilters;
+} catch (err) {
+  console.error('❌ Failed to load validators:', err);
+  // Fallback validators inline per evitare crash
+  validateScryfallQuery = (query) => {
+    const INVALID_OPERATORS = ['kv:', 'ability:', 'skill:'];
+    INVALID_OPERATORS.forEach(invalid => {
+      if (query.includes(invalid)) {
+        throw new Error(`Invalid operator '${invalid}' found in query.`);
+      }
+    });
+  };
+  validateFilters = (format, order, direction) => {
+    const VALID_FORMATS = ['standard', 'pioneer', 'modern', 'legacy', 'vintage', 'commander', 'edh', 'pauper', 'historic', 'explorer', 'alchemy', 'brawl', 'future', 'oldschool', 'premodern', 'duel', 'penny'];
+    const VALID_ORDER_BY = ['name', 'set', 'released', 'rarity', 'color', 'usd', 'tix', 'eur', 'cmc', 'power', 'toughness', 'edhrec', 'penny', 'artist', 'review'];
+    const VALID_DIRECTIONS = ['auto', 'asc', 'desc'];
+    const errors = [];
+    if (format && !VALID_FORMATS.includes(format.toLowerCase()) && format !== 'all') {
+      errors.push(`Invalid format '${format}'.`);
+    }
+    if (order && !VALID_ORDER_BY.includes(order.toLowerCase()) && order !== 'auto') {
+      errors.push(`Invalid order '${order}'.`);
+    }
+    if (direction && !VALID_DIRECTIONS.includes(direction.toLowerCase())) {
+      errors.push(`Invalid direction '${direction}'.`);
+    }
+    return errors.length > 0 ? errors.join('; ') : null;
+  };
+}
 
 // System prompt per Gemini (stesso di server.js)
 const SYSTEM_PROMPT = `🚨 CRITICAL RULE - READ THIS FIRST:
@@ -186,6 +220,10 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  console.log('🚀 API handler started');
+  console.log('📁 Current working directory:', process.cwd());
+  console.log('📦 Validators loaded:', typeof validateScryfallQuery === 'function');
 
   try {
     const { prompt, format, order, direction, page = 1 } = req.body;
