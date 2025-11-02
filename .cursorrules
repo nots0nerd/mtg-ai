@@ -1,0 +1,102 @@
+# Scryfall Query Syntax Rules
+
+## CRITICAL: Valid Operators Only
+
+### ❌ NEVER USE (These don't exist in Scryfall):
+
+- kv:
+- keyword:
+- ability:
+- skill:
+
+### ✅ ALWAYS USE for Card Abilities:
+
+- o:flying (search Oracle text)
+- o:trample
+- o:haste
+- o:"first strike" (quotes for multi-word abilities)
+
+## Operator Reference
+
+### Text Search
+- o: or oracle: - Search Oracle text (rules text)
+- fo: or fulloracle: - Search full Oracle including reminder text
+- ft: or flavor: - Search flavor text
+
+### Card Properties
+- t: or type: - Card type (creature, instant, sorcery, etc.)
+- c: or color: - Color (w, u, b, r, g)
+- mv: or cmc: - Mana value/converted mana cost
+- m: or mana: - Specific mana cost
+
+### Stats
+- pow: or power: - Power
+- tou: or toughness: - Toughness
+- loy: or loyalty: - Planeswalker loyalty
+
+### Set & Rarity
+- s: or set: or e: or edition: - Set code
+- r: or rarity: - Rarity (common, uncommon, rare, mythic)
+
+### Financial
+- usd: - Price in USD (use with >, <, =, etc.)
+- eur: - Price in Euros
+- tix: - MTGO ticket price
+
+### Special Filters
+- is:reserved - Reserved List cards
+- is:hybrid - Hybrid mana cards
+- is:permanent - Permanents
+- has:watermark - Has watermark
+
+### Logic
+- AND is implicit: mv=1 t:creature o:flying
+- OR must be explicit: (c:red or c:blue)
+- Negation: -o:flying or not:flying
+- Parentheses for grouping: t:legendary (t:goblin or t:elf)
+
+## Query Examples
+
+Natural Language → Scryfall Syntax:
+
+1. "one mana creature with flying"
+   → mv=1 t:creature o:flying
+
+2. "red dragon under 5 mana"
+   → c:red t:dragon mv<5
+
+3. "legendary goblin or elf"
+   → t:legendary (t:goblin or t:elf)
+
+4. "instant that draws cards and costs 2 mana"
+   → t:instant o:draw mv=2
+
+5. "creatures with power greater than toughness"
+   → t:creature pow>tou
+
+6. "artifact with activated ability"
+   → t:artifact o:":"
+
+7. "white or blue rare under $5"
+   → (c:white or c:blue) r:rare usd<5
+
+## Common Mistakes to Avoid
+
+1. ❌ kv:flying → ✅ o:flying
+2. ❌ ability:trample → ✅ o:trample
+3. ❌ color:red → ✅ c:red or c:r
+4. ❌ cost:3 → ✅ mv=3 or cmc=3
+5. ❌ o:draw card → ✅ o:"draw card" (use quotes for phrases)
+
+## Validation Rules
+
+Before generating any Scryfall query:
+
+1. Check that all operators exist in the Valid Operators list
+2. Use o: for searching abilities in card text
+3. Use t: for card types
+4. Use mv: or cmc: for mana value
+5. Wrap multi-word searches in quotes
+6. Use parentheses for OR logic
+
+

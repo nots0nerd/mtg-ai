@@ -1,0 +1,25 @@
+# Environment variables
+.env
+
+# Logs
+logs/
+
+# Node modules
+node_modules/
+
+# Dependencies
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Vercel
+.vercel
+dist/
+build/
+
