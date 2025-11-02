@@ -231,23 +231,28 @@ module.exports = async (req, res) => {
       } catch (validationError) {
         console.error('❌ Query validation failed:', validationError.message);
         
-        // Log errore
-        const logDir = path.join(process.cwd(), 'logs');
-        if (!fs.existsSync(logDir)) {
-          fs.mkdirSync(logDir, { recursive: true });
+        // Log errore (solo in ambiente locale, su Vercel usiamo solo console.log)
+        try {
+          const logDir = path.join(process.cwd(), 'logs');
+          if (!fs.existsSync(logDir)) {
+            fs.mkdirSync(logDir, { recursive: true });
+          }
+          
+          const errorLog = {
+            timestamp: new Date().toISOString(),
+            userQuery: prompt,
+            generatedQuery: scryfallQuery,
+            error: validationError.message
+          };
+          
+          fs.appendFileSync(
+            path.join(logDir, 'query-errors.log'),
+            JSON.stringify(errorLog) + '\n'
+          );
+        } catch (logError) {
+          // Se fallisce il logging su file (es. su Vercel), continua comunque
+          console.error('Failed to write error log to file:', logError.message);
         }
-        
-        const errorLog = {
-          timestamp: new Date().toISOString(),
-          userQuery: prompt,
-          generatedQuery: scryfallQuery,
-          error: validationError.message
-        };
-        
-        fs.appendFileSync(
-          path.join(logDir, 'query-errors.log'),
-          JSON.stringify(errorLog) + '\n'
-        );
         
         throw validationError;
       }
