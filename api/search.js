@@ -265,10 +265,12 @@ module.exports = async (req, res) => {
       
       console.log('✅ Generated Scryfall query:', scryfallQuery);
     } catch (error) {
-      console.error('Error generating query:', error);
+      console.error('❌ Error generating query:', error);
+      console.error('❌ Error stack:', error.stack);
       return res.status(500).json({ 
         error: 'Failed to generate Scryfall query',
-        details: error.message 
+        details: error.message || 'Unknown error',
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
     }
 
