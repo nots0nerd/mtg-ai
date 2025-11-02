@@ -133,7 +133,16 @@ function App() {
   };
 
   const loadPage = async (newPage) => {
+    console.log('🔄 loadPage called:', { 
+      newPage, 
+      currentPage: pagination.currentPage, 
+      totalPages: pagination.totalPages, 
+      isClientPagination: pagination.isClientPagination,
+      allCardsLength: allCards.length
+    });
+    
     if (newPage < 1 || (pagination.totalPages > 0 && newPage > pagination.totalPages)) {
+      console.log('⚠️ Invalid page number, returning');
       return;
     }
     
@@ -141,8 +150,8 @@ function App() {
     
     try {
       // 🆕 Se è pagination client-side
-      if (pagination.isClientPagination) {
-        console.log('📄 Client-side page change:', newPage);
+      if (pagination.isClientPagination && allCards.length > 0) {
+        console.log('📄 Client-side page change:', newPage, 'allCards:', allCards.length);
         
         // Calcola indici
         const startIndex = (newPage - 1) * 20;
@@ -202,7 +211,36 @@ function App() {
       
       console.log('📦 loadPage - Received cards:', receivedCards, 'of', totalCards);
       
-      // Limita displayCards a 20 per sicurezza
+      // Se Scryfall ha mandato TUTTE le carte (pagination client-side)
+      if (receivedCards === totalCards && totalCards > 20) {
+        console.log('🔄 Server returned all cards, switching to client-side pagination');
+        
+        // Salva tutte le carte
+        setAllCards(cards);
+        
+        // Calcola quale slice mostrare basato su newPage
+        const startIndex = (newPage - 1) * 20;
+        const endIndex = startIndex + 20;
+        setDisplayCards(cards.slice(startIndex, endIndex));
+        
+        // Calcola pagine client-side
+        const clientTotalPages = Math.ceil(totalCards / 20);
+        
+        setPagination({
+          totalCards: totalCards,
+          currentPage: newPage,
+          hasMore: newPage < clientTotalPages,
+          totalPages: clientTotalPages,
+          cardsInPage: Math.min(20, totalCards - startIndex),
+          isClientPagination: true
+        });
+        
+        setResults(cards);
+        setLoading(false);
+        return;
+      }
+      
+      // Limita displayCards a 20 per sicurezza (server-side pagination)
       const cardsToShow = cards.slice(0, 20);
       
       setAllCards(cards);
