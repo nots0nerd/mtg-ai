@@ -152,11 +152,15 @@ function App() {
         setDisplayCards(allCards.slice(startIndex, endIndex));
         
         // Aggiorna stato paginazione
-        setPagination({
+        const updatedPagination = {
           ...pagination,
           currentPage: newPage,
           hasMore: newPage < pagination.totalPages
-        });
+        };
+        
+        console.log('✅ Client-side pagination updated:', updatedPagination);
+        
+        setPagination(updatedPagination);
         
         setLoading(false);
         return;
