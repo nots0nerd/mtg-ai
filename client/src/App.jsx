@@ -309,12 +309,27 @@ function App() {
         return;
       }
       
-      setError(
-        err.response?.data?.error || 
-        err.message || 
-        'Errore durante il caricamento della pagina'
-      );
+      // Gestisce errori in formato stringa o oggetto
+      let errorMessage = 'Errore durante il caricamento della pagina';
+      
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.error) {
+          errorMessage = typeof err.response.data.error === 'string' 
+            ? err.response.data.error 
+            : JSON.stringify(err.response.data.error);
+        } else if (err.response.data.message) {
+          errorMessage = typeof err.response.data.message === 'string'
+            ? err.response.data.message
+            : JSON.stringify(err.response.data.message);
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
       console.error('Error loading page:', err);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
