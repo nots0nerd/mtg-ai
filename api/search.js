@@ -233,8 +233,13 @@ module.exports = async (req, res) => {
       const totalCards = scryfallData.total_cards || 0;
       const hasMore = scryfallData.has_more || false;
 
-      // Limita a 20 carte per pagina
-      const cardsToReturn = cards.slice(0, 20);
+      // 🆕 Se has_more è false ma ci sono più carte di quelle ricevute,
+      // significa che Scryfall ha dato tutte le carte in una volta
+      // In questo caso, restituiamo tutte le carte per pagination client-side
+      const shouldReturnAllCards = !hasMore && totalCards > 0 && cards.length === totalCards && totalCards > 20;
+      
+      // Se deve restituire tutte le carte, non limitare
+      const cardsToReturn = shouldReturnAllCards ? cards : cards.slice(0, 20);
       
       // Calcola totalPages (Scryfall ritorna max 175 pagine)
       const totalPages = Math.min(Math.ceil(totalCards / 20), 175);
@@ -247,7 +252,8 @@ module.exports = async (req, res) => {
           currentPage: parseInt(page),
           hasMore: hasMore,
           totalPages: totalPages,
-          cardsInPage: cardsToReturn.length
+          cardsInPage: cardsToReturn.length,
+          isClientPagination: shouldReturnAllCards // 🆕 Flag per frontend
         }
       });
     } catch (error) {
