@@ -157,8 +157,18 @@ function App() {
         const startIndex = (newPage - 1) * 20;
         const endIndex = startIndex + 20;
         
+        // Verifica che abbiamo abbastanza carte
+        if (startIndex >= allCards.length) {
+          console.warn('⚠️ Start index exceeds allCards length:', { startIndex, allCardsLength: allCards.length });
+          setLoading(false);
+          return;
+        }
+        
         // Mostra le carte della pagina richiesta
-        setDisplayCards(allCards.slice(startIndex, endIndex));
+        const cardsToDisplay = allCards.slice(startIndex, endIndex);
+        console.log('📋 Displaying cards:', { startIndex, endIndex, cardsCount: cardsToDisplay.length });
+        
+        setDisplayCards(cardsToDisplay);
         
         // Aggiorna stato paginazione
         const updatedPagination = {
@@ -212,16 +222,22 @@ function App() {
       console.log('📦 loadPage - Received cards:', receivedCards, 'of', totalCards);
       
       // Se Scryfall ha mandato TUTTE le carte (pagination client-side)
-      if (receivedCards === totalCards && totalCards > 20) {
-        console.log('🔄 Server returned all cards, switching to client-side pagination');
+      // OPPURE se abbiamo già allCards e stiamo facendo paginazione
+      if ((receivedCards === totalCards && totalCards > 20) || (allCards.length > 0 && allCards.length === totalCards)) {
+        console.log('🔄 Using client-side pagination');
         
-        // Salva tutte le carte
-        setAllCards(cards);
+        // Se abbiamo già tutte le carte in allCards, usa quelle
+        const cardsToUse = allCards.length > 0 && allCards.length === totalCards ? allCards : cards;
+        
+        // Se non abbiamo ancora salvato tutte le carte, salvele
+        if (allCards.length !== totalCards) {
+          setAllCards(cardsToUse);
+        }
         
         // Calcola quale slice mostrare basato su newPage
         const startIndex = (newPage - 1) * 20;
         const endIndex = startIndex + 20;
-        setDisplayCards(cards.slice(startIndex, endIndex));
+        setDisplayCards(cardsToUse.slice(startIndex, endIndex));
         
         // Calcola pagine client-side
         const clientTotalPages = Math.ceil(totalCards / 20);
@@ -235,7 +251,7 @@ function App() {
           isClientPagination: true
         });
         
-        setResults(cards);
+        setResults(cardsToUse);
         setLoading(false);
         return;
       }
