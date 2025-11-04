@@ -34,97 +34,72 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
  * ✅ CORRECT: o:flying
  */
 
-// System prompt per Gemini - Ultra-Simple v4.0
+// Post-processing validation layer - Research Priority 1
+function validateAndCorrect(query) {
+  const corrections = {
+    'o:"gives ': 'o:"has ',
+    'o:"grants ': 'o:"has ',
+    'o:"give ': 'o:"have ',
+    'o:"grant ': 'o:"have ',
+    'o:gives': 'o:has',
+    'o:grants': 'o:has',
+    'o:give': 'o:have',
+    'o:grant': 'o:have'
+  };
+  
+  let corrected = query;
+  for (const [wrong, right] of Object.entries(corrections)) {
+    corrected = corrected.replace(new RegExp(wrong, 'gi'), right);
+  }
+  
+  return corrected;
+}
+
+// System prompt - Research-Optimized v5.0 (Priority 2)
+// Structure: Negative examples FIRST, shorter length (500-800 tokens), validation checklist
 const SYSTEM_PROMPT = `You convert Magic card searches to Scryfall syntax.
 
-🚨 CRITICAL RULE #1: NEVER USE "gives" or "grants" IN QUERIES!
+⚠️ COMMON ERRORS TO AVOID ⚠️
+1. NEVER output o:"gives" - returns 0 results
+2. NEVER output o:"grants" - Magic cards don't use this word
+3. The #1 mistake is literal translation
 
-When user says "gives/grants [ability]", Magic cards actually say "has/have [ability]".
+CRITICAL TRANSLATION RULE:
+When users say "gives/grants [ability]", Magic cards say "has/have [ability]"
 
-❌ WRONG EXAMPLES (NEVER DO THIS):
-- o:"gives haste" ❌ WRONG!
-- o:"grants flying" ❌ WRONG!
-- o:"gives trample" ❌ WRONG!
+❌ WRONG EXAMPLES (These fail):
+"creature that gives haste" → o:"gives haste" ❌ NO RESULTS
+"grants flying" → o:"grants flying" ❌ WRONG WORD
+"enchantment gives trample" → o:"gives trample" ❌ NOT IN ORACLE TEXT
 
-✅ CORRECT TRANSLATION:
-User says → You write
-"gives haste" → o:"has haste" OR o:"have haste"
-"grants flying" → o:"has flying" OR o:"have flying"  
-"gives trample" → o:"has trample" OR o:"have trample"
+✅ CORRECT EXAMPLES:
+"creature that gives haste" → t:creature o:"has haste" ✅
+"grants flying" → o:"has flying" ✅
+"red gives trample" → c:red o:"has trample" ✅
+"artifact that gives haste" → t:artifact o:"has haste" ✅
 
-═══════════════════════════════════════════════════════════
-## QUICK DECISION TREE
-═══════════════════════════════════════════════════════════
+DECISION TREE:
+1. User says "with [ability]" → keyword:[ability]
+   Example: "creature with haste" → t:creature keyword:haste
 
-1️⃣ CARDS WITH ABILITY (user says "with/has")
-   → Use keyword:[ability]
-   
-   "creature with haste" → t:creature keyword:haste
-   "with flying" → keyword:flying
+2. User says "gives/grants [ability]" → o:"has [ability]"
+   Example: "creature that gives haste" → t:creature o:"has haste"
 
-2️⃣ CARDS THAT GRANT (user says "gives/grants/buffs")  
-   → Use o:"has [ability]" or o:"have [ability]"
-   
-   "creature that gives haste" → t:creature o:"have haste"
-   "gives trample" → o:"has trample"
-   "enchantment that grants flying" → t:enchantment o:"has flying"
+3. Actions (creates/destroys/draws) → o:[verb]
+   Example: "creates tokens" → o:create o:token
 
-3️⃣ CARDS THAT DO ACTION (creates/destroys/draws)
-   → Use o:[verb] o:[object]
-   
-   "creates tokens" → o:create o:token
-   "destroys artifacts" → o:destroy o:artifact
+BASIC SYNTAX:
+- COLOR: c:red, c:blue, c:white, c:black, c:green
+- TYPE: t:creature, t:instant, t:sorcery, t:artifact, t:enchantment
+- MANA: mv=3, mv<=2, mv>=5
+- STATS: pow>=5, tou<3
 
-## BASIC FILTERS
-
-COLOR: c:red, c:blue, c:white, c:black, c:green (or c:r, c:u, c:w, c:b, c:g)
-TYPE: t:creature, t:instant, t:sorcery, t:artifact, t:enchantment
-MANA: mv=3, mv<=2, mv>=5, mv<4
-STATS: pow>=5, tou<3, pow>tou
-
-═══════════════════════════════════════════════════════════
-## MORE EXAMPLES - STUDY THESE!
-═══════════════════════════════════════════════════════════
-
-✅ "red mana creature that gives trample"
-   → c:red t:creature o:"has trample"
-   (NOT o:"gives trample"!)
-
-✅ "red two mana creature that gives trample"  
-   → c:red mv=2 t:creature o:"has trample"
-   (NOT o:"gives trample"!)
-
-✅ "enchantment that grants flying"
-   → t:enchantment o:"has flying"
-   (NOT o:"grants flying"!)
-
-✅ "artifact that gives haste"
-   → t:artifact o:"has haste"
-   (NOT o:"gives haste"!)
-
-✅ "creature with haste" (HAS ability, not GRANTS)
-   → t:creature keyword:haste
-
-✅ "creature that gives haste to others" (GRANTS ability)
-   → t:creature o:"have haste"
-
-✅ "creates tokens"
-   → o:create o:token
-
-✅ "when enters draws"
-   → o:"when" o:"enters" o:"draw"
-
-═══════════════════════════════════════════════════════════
-## FINAL REMINDERS
-═══════════════════════════════════════════════════════════
-
-1. User says "gives/grants" → YOU write o:"has" or o:"have"
-2. User says "with" → YOU write keyword:
-3. Multi-word abilities need quotes: keyword:"first strike"
-4. NEVER EVER use o:"gives" or o:"grants" - it doesn't exist in Magic!
+VALIDATION CHECKLIST (before responding):
+1. Does output contain "gives" or "grants"?
+2. If YES → REWRITE using "has" or "have"
+3. If NO → proceed
 
 OUTPUT: Return ONLY the Scryfall query, nothing else.`;
-Now convert the user's query following this decision tree.`;
 
 // Endpoint POST /api/search
 // Gestisce sia /api/search (locale) che /search (Vercel rimuove /api)
@@ -162,15 +137,36 @@ const handleSearch = async (req, res) => {
       
       console.log('Calling Gemini API...');
       
+      // Priority 1: Optimized configuration for determinism
+      const geminiPromise = model.generateContent(fullPrompt, {
+        generationConfig: {
+          temperature: 0.0,      // Maximum determinism
+          topP: 0.95,
+          topK: 1,               // Force single best token
+          maxOutputTokens: 500   // Keep responses concise
+        }
+      });
+      
       // Timeout di 5 secondi per la richiesta Gemini
-      const geminiPromise = model.generateContent(fullPrompt);
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Gemini API timeout')), 5000)
       );
       
       const result = await Promise.race([geminiPromise, timeoutPromise]);
       const response = await result.response;
-      scryfallQuery = response.text().trim();
+      let rawQuery = response.text().trim();
+      
+      console.log('📝 Raw Gemini response:', rawQuery);
+      
+      // Rimuovi markdown code blocks se presenti
+      scryfallQuery = rawQuery.replace(/^```[\w]*\n?/gm, '').replace(/```$/gm, '').trim();
+      
+      console.log('🔍 Cleaned query (before validation):', scryfallQuery);
+      
+      // Priority 1: Apply post-processing validation
+      scryfallQuery = validateAndCorrect(scryfallQuery);
+      
+      console.log('✅ Query after validation:', scryfallQuery);
       
       // Valida la query generata
       try {
