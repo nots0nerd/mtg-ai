@@ -1,0 +1,53 @@
+# MTG Set Codes (Last 40 sets + Popular ones)
+# Format: code | name | release_date
+
+tmc   | Teenage Mutant Ninja Turtles Eternal     | 2026-03-06
+tmt   | Teenage Mutant Ninja Turtles             | 2026-03-06
+pza   | Teenage Mutant Hero Turtles Source Material | 2026-03-06
+ecl   | Lorwyn Eclipsed                          | 2026-01-23
+tle   | Avatar: The Last Airbender Eternal       | 2025-11-21
+tla   | Avatar: The Last Airbender               | 2025-11-21
+lmar  | Marvel Legends Series Inserts            | 2025-09-30
+pspm  | Marvel's Spider-Man Promos               | 2025-09-26
+spe   | Marvel's Spider-Man Eternal              | 2025-09-26
+spm   | Marvel's Spider-Man                      | 2025-09-26
+mar   | Marvel Universe                          | 2025-09-26
+aa4   | Arena Anthology 4                        | 2025-09-23
+omb   | Through the Omenpaths Bonus Sheet        | 2025-09-23
+aa3   | Arena Anthology 3                        | 2025-09-23
+om1   | Through the Omenpaths                    | 2025-09-23
+ph23  | 2023 Heroes of the Realm                 | 2025-08-24
+aa2   | Arena Anthology 2                        | 2025-08-19
+yeoe  | Alchemy: Edge of Eternities              | 2025-08-19
+aa1   | Arena Anthology 1                        | 2025-08-19
+peoe  | Edge of Eternities Promos                | 2025-08-01
+eos   | Edge of Eternities: Stellar Sights       | 2025-08-01
+eoe   | Edge of Eternities                       | 2025-08-01
+eoc   | Edge of Eternities Commander             | 2025-08-01
+pbig  | The Big Score Promos                     | 2025-08-01
+rfin  | Final Fantasy Regional Promos            | 2025-06-13
+pfin  | Final Fantasy Promos                     | 2025-06-13
+fic   | Final Fantasy Commander                  | 2025-06-13
+fca   | Final Fantasy: Through the Ages          | 2025-06-13
+fin   | Final Fantasy                            | 2025-06-13
+pss5  | FIN Standard Showdown                    | 2025-06-13
+pa1   | Pioneer Anthology 1                      | 2025-05-05
+ytdm  | Alchemy: Tarkir                          | 2025-04-29
+ptdm  | Tarkir: Dragonstorm Promos               | 2025-04-11
+tdc   | Tarkir: Dragonstorm Commander            | 2025-04-11
+tdm   | Tarkir: Dragonstorm                      | 2025-04-11
+plg25 | Love Your LGS 2025                       | 2025-03-26
+ydft  | Alchemy: Aetherdrift                     | 2025-03-04
+pdft  | Aetherdrift Promos                       | 2025-02-14
+dft   | Aetherdrift                              | 2025-02-14
+pl25  | Year of the Snake 2025                   | 2025-02-14
+znr   | Zendikar Rising                          | 2020-09-25
+m21   | Core Set 2021                            | 2020-07-03
+iko   | Ikoria: Lair of Behemoths                | 2020-04-24
+thb   | Theros Beyond Death                      | 2020-01-24
+m20   | Core Set 2020                            | 2019-07-12
+war   | War of the Spark                         | 2019-05-03
+rna   | Ravnica Allegiance                       | 2019-01-25
+grn   | Guilds of Ravnica                        | 2018-10-05
+m19   | Core Set 2019                            | 2018-07-13
+dom   | Dominaria                                | 2018-04-27

@@ -89,14 +89,26 @@ DECISION TREE:
 4. Sets/Editions → s:[code]
    Example: "cards from Innistrad" → s:mid OR s:isd
    Example: "Foundations rare" → s:fdn r:rare
+   Example: "white creature from Kamigawa" → c:white t:creature s:neo
 
 BASIC SYNTAX:
 - COLOR: c:red, c:blue, c:white, c:black, c:green
 - TYPE: t:creature, t:instant, t:sorcery, t:artifact, t:enchantment
 - MANA: mv=3, mv<=2, mv>=5
 - STATS: pow>=5, tou<3
-- SET: s:war (War of the Spark), s:mid (Midnight Hunt), s:neo (Kamigawa), s:fdn (Foundations)
 - RARITY: r:rare, r:mythic, r:uncommon, r:common
+
+SET CODES (Recent & Popular):
+- fdn:Foundations, dsk:Duskmourn, blb:Bloomburrow, mh3:Modern Horizons 3
+- otj:Outlaws of Thunder Junction, mkm:Murders at Karlov Manor, lci:Lost Caverns of Ixalan
+- woe:Wilds of Eldraine, mat:March of the Machine Aftermath, mom:March of the Machine
+- one:Phyrexia All Will Be One, bro:Brothers War, dmu:Dominaria United
+- snc:Streets of New Capenna, neo:Kamigawa Neon Dynasty, vow:Crimson Vow, mid:Midnight Hunt
+- afr:Forgotten Realms, stx:Strixhaven, khm:Kaldheim, znr:Zendikar Rising
+- m21:Core 2021, iko:Ikoria, thb:Theros Beyond Death, eld:Eldraine, m20:Core 2020
+- war:War of the Spark, rna:Ravnica Allegiance, grn:Guilds of Ravnica, dom:Dominaria
+- rix:Rivals of Ixalan, xln:Ixalan, hou:Hour of Devastation, akh:Amonkhet
+- aer:Aether Revolt, kld:Kaladesh, emn:Eldritch Moon, soi:Shadows over Innistrad
 
 VALIDATION CHECKLIST (before responding):
 1. Does output contain "gives" or "grants"?
