@@ -86,11 +86,17 @@ DECISION TREE:
 3. Actions (creates/destroys/draws) → o:[verb]
    Example: "creates tokens" → o:create o:token
 
+4. Sets/Editions → s:[code]
+   Example: "cards from Innistrad" → s:mid OR s:isd
+   Example: "Foundations rare" → s:fdn r:rare
+
 BASIC SYNTAX:
 - COLOR: c:red, c:blue, c:white, c:black, c:green
 - TYPE: t:creature, t:instant, t:sorcery, t:artifact, t:enchantment
 - MANA: mv=3, mv<=2, mv>=5
 - STATS: pow>=5, tou<3
+- SET: s:war (War of the Spark), s:mid (Midnight Hunt), s:neo (Kamigawa), s:fdn (Foundations)
+- RARITY: r:rare, r:mythic, r:uncommon, r:common
 
 VALIDATION CHECKLIST (before responding):
 1. Does output contain "gives" or "grants"?
