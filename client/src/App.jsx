@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
 import FilterBar from './components/FilterBar';
 import './App.css';
 
@@ -363,9 +364,19 @@ function App() {
     });
 
     return (
-      <div className="pagination-container">
+      <motion.div 
+        className="pagination-container"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
         {/* INFO SEMPRE VISIBILE */}
-        <div className="pagination-info">
+        <motion.div 
+          className="pagination-info"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
           <p className="total-cards">
             Found <strong>{pagination.totalCards}</strong> cards
             {pagination.totalCards > 20 && (
@@ -380,12 +391,17 @@ function App() {
               </span>
             )}
           </p>
-        </div>
+        </motion.div>
 
         {/* BOTTONI SOLO SE CI SONO PIÙ PAGINE E showButtons è true */}
         {showButtons && pagination.totalPages > 1 && (
-          <div className="pagination-controls">
-            <button
+          <motion.div 
+            className="pagination-controls"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.button
               onClick={(e) => {
                 e.preventDefault();
                 console.log('🔵 Previous clicked, currentPage:', pagination.currentPage);
@@ -393,15 +409,23 @@ function App() {
               }}
               disabled={!canGoPrevious}
               className="pagination-btn"
+              whileHover={!canGoPrevious ? {} : { scale: 1.05, y: -2 }}
+              whileTap={!canGoPrevious ? {} : { scale: 0.95 }}
+              transition={{ duration: 0.2 }}
             >
               ← Previous
-            </button>
+            </motion.button>
 
-            <span className="page-info">
+            <motion.span 
+              className="page-info"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.2 }}
+            >
               Page {pagination.currentPage} of {pagination.totalPages}
-            </span>
+            </motion.span>
 
-            <button
+            <motion.button
               onClick={(e) => {
                 e.preventDefault();
                 console.log('🔵 Next clicked, currentPage:', pagination.currentPage, 'totalPages:', pagination.totalPages);
@@ -409,12 +433,15 @@ function App() {
               }}
               disabled={!canGoNext}
               className="pagination-btn"
+              whileHover={!canGoNext ? {} : { scale: 1.05, y: -2 }}
+              whileTap={!canGoNext ? {} : { scale: 0.95 }}
+              transition={{ duration: 0.2 }}
             >
               Next →
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     );
   }
 
@@ -422,18 +449,42 @@ function App() {
     <div className="app">
       <div className="container">
         {/* Header */}
-        <div className="header">
-          <h1 className="title">MTG AI Search</h1>
-          <p className="subtitle">Cerca carte Magic: The Gathering con l'AI</p>
-        </div>
+        <motion.div 
+          className="header"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <motion.h1 
+            className="title"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            MTG AI Search
+          </motion.h1>
+          <motion.p 
+            className="subtitle"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            Cerca carte Magic: The Gathering con l'AI
+          </motion.p>
+        </motion.div>
 
         {/* Filter Bar */}
         <FilterBar onFiltersChange={handleFiltersChange} filters={filters} />
 
         {/* Search Section */}
-        <div className="search-section">
+        <motion.div 
+          className="search-section"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
           <div className="search-container">
-            <input
+            <motion.input
               type="text"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
@@ -441,39 +492,72 @@ function App() {
               placeholder="e.g., creatures with flying"
               className="search-input"
               disabled={loading}
+              whileFocus={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
             />
-            <button
+            <motion.button
               onClick={handleSearchClick}
               disabled={loading || !prompt.trim()}
               className="search-button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
             >
               {loading ? 'Searching...' : 'Search'}
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Loading Spinner */}
-        {loading && (
-          <div className="loading">
-            <div className="spinner"></div>
-          </div>
-        )}
+        <AnimatePresence>
+          {loading && (
+            <motion.div 
+              className="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="spinner"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Error Message */}
-        {error && (
-          <div className="error">
-            <div className="error-title">Errore:</div>
-            <div>{error}</div>
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div 
+              className="error"
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="error-title">Errore:</div>
+              <div>{error}</div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Scryfall Query */}
-        {scryfallQuery && !loading && (
-          <div className="query-display">
-            <div className="query-label">Query Scryfall:</div>
-            <div className="query-text">{scryfallQuery}</div>
-          </div>
-        )}
+        <AnimatePresence>
+          {scryfallQuery && !loading && (
+            <motion.div 
+              className="query-display"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="query-label">Query Scryfall:</div>
+              <div className="query-text">{scryfallQuery}</div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Pagination Info - TOP */}
         {pagination.totalCards > 0 && !loading && (
@@ -512,11 +596,34 @@ function App() {
         )}
 
         {/* Results Grid */}
-        {displayCards.length > 0 && !loading && (
-          <div className="results">
-            <div className="results-grid">
-              {displayCards.map((card) => (
-                  <div key={card.id} className="card-item">
+        <AnimatePresence mode="wait">
+          {displayCards.length > 0 && !loading && (
+            <motion.div 
+              className="results"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="results-grid">
+                {displayCards.map((card, index) => (
+                  <motion.div
+                    key={card.id}
+                    className="card-item"
+                    initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{
+                      duration: 0.4,
+                      delay: index * 0.05,
+                      ease: [0.25, 0.46, 0.45, 0.94]
+                    }}
+                    whileHover={{ 
+                      y: -8,
+                      scale: 1.02,
+                      transition: { duration: 0.2 }
+                    }}
+                  >
                     {/* Card Image */}
                     {card.image_uris?.normal && (
                       <div className="card-image-container">
@@ -551,11 +658,12 @@ function App() {
                         <p className="card-set">{card.set_name}</p>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-            </div>
-          </div>
-        )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         {/* No results message */}
         {!loading && (!results || results.length === 0) && !error && (
