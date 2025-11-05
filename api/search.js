@@ -53,6 +53,119 @@ function validateAndCorrect(query) {
   return corrected;
 }
 
+// Set name extraction - uses full mtg-sets.json database
+// Cache sets data to avoid reloading on every request
+let setsCache = null;
+
+function loadSetsCache() {
+  if (setsCache) return setsCache;
+  
+  try {
+    const setsPath = path.join(__dirname, '..', 'mtg-sets.json');
+    if (fs.existsSync(setsPath)) {
+      const setsData = JSON.parse(fs.readFileSync(setsPath, 'utf8'));
+      // Filter to only expansion/core sets (exclude tokens, memorabilia, etc.)
+      setsCache = setsData
+        .filter(set => ['expansion', 'core', 'commander', 'draft_innovation'].includes(set.set_type))
+        .map(set => ({
+          code: set.code,
+          name: set.name.toLowerCase(),
+          fullName: set.name
+        }));
+      console.log(`📚 Loaded ${setsCache.length} sets for name matching`);
+      return setsCache;
+    }
+  } catch (error) {
+    console.warn('⚠️ Could not load mtg-sets.json:', error.message);
+  }
+  
+  return [];
+}
+
+function extractSetCodeFromQuery(userQuery) {
+  if (!userQuery) return null;
+  
+  const sets = loadSetsCache();
+  if (sets.length === 0) return null;
+  
+  const queryLower = userQuery.toLowerCase();
+  
+  // Patterns that indicate set names: "from [Set]", "in [Set]", "[Set] set", etc.
+  const setPatterns = [
+    /(?:from|in|of|set|edition)\s+([a-z][a-z\s:']{2,})/gi,
+    /^([a-z][a-z\s:']{2,})\s+(?:set|cards?|edition)/gi,
+    /([a-z][a-z\s:']{2,})\s+(?:rare|mythic|uncommon|common)/gi
+  ];
+  
+  let potentialSetNames = [];
+  
+  // Extract potential set names using patterns
+  setPatterns.forEach(pattern => {
+    const matches = [...userQuery.matchAll(pattern)];
+    matches.forEach(match => {
+      if (match[1]) {
+        potentialSetNames.push(match[1].trim());
+      }
+    });
+  });
+  
+  // Also check if entire query or significant parts match a set name
+  const words = queryLower.split(/\s+/).filter(w => w.length > 2);
+  if (words.length >= 2) {
+    // Check 2-4 word combinations
+    for (let i = 0; i < words.length - 1; i++) {
+      for (let j = i + 2; j <= Math.min(i + 4, words.length + 1); j++) {
+        const phrase = words.slice(i, j).join(' ');
+        potentialSetNames.push(phrase);
+      }
+    }
+  }
+  
+  // Fuzzy match against set names
+  let bestMatch = null;
+  let bestScore = 0;
+  
+  potentialSetNames.forEach(potential => {
+    sets.forEach(set => {
+      // Exact match
+      if (set.name === potential) {
+        bestMatch = set.code;
+        bestScore = 100;
+        return;
+      }
+      
+      // Contains match (set name contains the phrase or vice versa)
+      if (set.name.includes(potential) || potential.includes(set.name)) {
+        const score = Math.min(set.name.length, potential.length) / Math.max(set.name.length, potential.length);
+        if (score > bestScore && score > 0.6) {
+          bestMatch = set.code;
+          bestScore = score;
+        }
+      }
+      
+      // Word-by-word match (e.g., "Final Fantasy" matches "final fantasy")
+      const setWords = set.name.split(/\s+/);
+      const potentialWords = potential.split(/\s+/);
+      if (potentialWords.length >= 2 && potentialWords.every(word => 
+        setWords.some(sw => sw.startsWith(word) || word.startsWith(sw))
+      )) {
+        const score = potentialWords.length / setWords.length;
+        if (score > bestScore && score > 0.7) {
+          bestMatch = set.code;
+          bestScore = score;
+        }
+      }
+    });
+  });
+  
+  if (bestMatch && bestScore > 0.6) {
+    console.log(`🎯 Extracted set code: ${bestMatch} (confidence: ${Math.round(bestScore * 100)}%)`);
+    return bestMatch;
+  }
+  
+  return null;
+}
+
 // System prompt - Research-Optimized v5.0 (Priority 2)
 // Structure: Negative examples FIRST, shorter length (500-800 tokens), validation checklist
 const SYSTEM_PROMPT = `You convert Magic card searches to Scryfall syntax.
@@ -212,6 +325,13 @@ module.exports = async (req, res) => {
       scryfallQuery = validateAndCorrect(scryfallQuery);
       
       console.log('✅ Query after validation:', scryfallQuery);
+      
+      // Extract set code from user query and append if not already present
+      const extractedSetCode = extractSetCodeFromQuery(prompt);
+      if (extractedSetCode && !scryfallQuery.includes(`s:${extractedSetCode}`)) {
+        scryfallQuery = `${scryfallQuery} s:${extractedSetCode}`.trim();
+        console.log(`✅ Added extracted set code: s:${extractedSetCode}`);
+      }
       
       if (!scryfallQuery || scryfallQuery.length === 0) {
         throw new Error('Gemini returned an empty query');
