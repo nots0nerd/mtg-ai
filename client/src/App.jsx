@@ -514,10 +514,6 @@ function App() {
         {/* Results Grid */}
         {displayCards.length > 0 && !loading && (
           <div className="results">
-            <div className="results-count">
-              Mostrando <span>{displayCards.length}</span> carte{pagination.totalCards > 0 ? ` su ${pagination.totalCards} totali` : ''}
-            </div>
-            
             <div className="results-grid">
               {displayCards.map((card) => (
                   <div key={card.id} className="card-item">
