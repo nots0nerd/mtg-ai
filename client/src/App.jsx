@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import FilterBar from './components/FilterBar';
+import CardViewer from './components/CardViewer';
 import './App.css';
 
 function App() {
@@ -25,6 +26,16 @@ function App() {
     totalPages: 0,
     isClientPagination: false
   });
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+
+  // Handle card click to open viewer
+  const handleCardClick = (card, index) => {
+    console.log('🔵🔵🔵 handleCardClick CALLED!', { cardName: card.name, index, viewerOpen });
+    setViewerIndex(index);
+    setViewerOpen(true);
+    console.log('🔵🔵🔵 State updated:', { viewerIndex: index, viewerOpen: true });
+  };
 
   const handleSearch = async (pageNum = 1) => {
     const searchPrompt = prompt.trim();
@@ -455,14 +466,19 @@ function App() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <motion.h1 
-            className="title"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            MTG AI Search
-          </motion.h1>
+        <motion.h1 
+          className="title"
+          initial={{ opacity: 0, scale: 0.8, y: -30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ 
+            duration: 0.8, 
+            delay: 0.2,
+            type: "spring",
+            stiffness: 100
+          }}
+        >
+          MTG AI Search
+        </motion.h1>
           <motion.p 
             className="subtitle"
             initial={{ opacity: 0 }}
@@ -595,7 +611,7 @@ function App() {
           </div>
         )}
 
-        {/* Results Grid */}
+        {/* Results Grid - FIXED VERSION */}
         <AnimatePresence mode="wait">
           {displayCards.length > 0 && !loading && (
             <motion.div 
@@ -610,19 +626,29 @@ function App() {
                   <motion.div
                     key={card.id}
                     className="card-item"
-                    initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
+                    onClick={(e) => {
+                      console.log('🔵🔵🔵 CARD CLICKED!', card.name, index);
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleCardClick(card, index);
+                    }}
+                    onMouseDown={(e) => {
+                      console.log('🔵🔵🔵 MOUSEDOWN!', card.name, index);
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleCardClick(card, index);
+                    }}
+                    initial={{ opacity: 0, y: 30, scale: 0.85, rotateX: -10 }}
+                    animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+                    exit={{ opacity: 0, scale: 0.85, y: -20 }}
                     transition={{
-                      duration: 0.4,
-                      delay: index * 0.05,
-                      ease: [0.25, 0.46, 0.45, 0.94]
+                      duration: 0.5,
+                      delay: index * 0.08,
+                      type: "spring",
+                      stiffness: 100,
+                      damping: 15
                     }}
-                    whileHover={{ 
-                      y: -8,
-                      scale: 1.02,
-                      transition: { duration: 0.2 }
-                    }}
+                    style={{ cursor: 'pointer', position: 'relative' }}
                   >
                     {/* Card Image */}
                     {card.image_uris?.normal && (
@@ -678,8 +704,62 @@ function App() {
         {pagination.totalCards > 0 && !loading && (
           <PaginationControls showButtons={true} />
         )}
+
+        {/* Card Viewer Modal */}
+        {viewerOpen && displayCards.length > 0 && (
+          <>
+            {console.log('🔵 Rendering CardViewer:', { viewerOpen, viewerIndex, cardsCount: displayCards.length })}
+            <CardViewer
+              key={`viewer-${viewerIndex}`}
+              cards={displayCards}
+              initialIndex={viewerIndex}
+              onClose={() => {
+                console.log('🔴 Closing viewer');
+                setViewerOpen(false);
+              }}
+            />
+          </>
+        )}
+        
+        {/* Debug info */}
+        <div style={{ 
+          position: 'fixed', 
+          bottom: 10, 
+          right: 10, 
+          background: 'rgba(0,0,0,0.9)', 
+          color: 'white', 
+          padding: '15px', 
+          fontSize: '12px', 
+          zIndex: 99999,
+          borderRadius: '8px',
+          border: '2px solid #3b82f6',
+          fontFamily: 'monospace'
+        }}>
+          <div>Viewer: <strong style={{color: viewerOpen ? '#10b981' : '#ef4444'}}>{viewerOpen ? 'OPEN' : 'CLOSED'}</strong></div>
+          <div>Index: {viewerIndex}</div>
+          <div>Cards: {displayCards.length}</div>
+          <button 
+            onClick={() => {
+              console.log('Test button clicked!');
+              if (displayCards.length > 0) {
+                handleCardClick(displayCards[0], 0);
+              }
+            }}
+            style={{ 
+              marginTop: '10px', 
+              padding: '5px 10px', 
+              background: '#3b82f6', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Test Open Viewer
+          </button>
+        </div>
       </div>
-    </div>
+      </div>
   );
 }
 

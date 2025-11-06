@@ -1,0 +1,338 @@
+.card-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.card-viewer-container {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  height: 90vh;
+  max-height: 900px;
+  background: rgba(31, 41, 55, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-viewer-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.8);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.card-viewer-close:hover {
+  background: rgba(239, 68, 68, 1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.card-viewer-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  padding: 3rem;
+  height: 100%;
+  overflow-y: auto;
+  touch-action: pan-y;
+}
+
+.card-viewer-image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.card-image-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  perspective: 1000px;
+}
+
+.card-image-wrapper.double-faced {
+  cursor: pointer;
+}
+
+.card-viewer-image {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease;
+  user-select: none;
+}
+
+.card-image-wrapper.double-faced .card-viewer-image:hover {
+  transform: scale(1.02);
+}
+
+.flip-indicator {
+  position: absolute;
+  bottom: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(59, 130, 246, 0.8);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.card-viewer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.card-viewer-info::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card-viewer-info::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.card-viewer-info::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5);
+  border-radius: 4px;
+}
+
+.card-viewer-info::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
+}
+
+.card-viewer-name {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(to right, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-viewer-info > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(17, 24, 39, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-viewer-info .label {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-viewer-info .value {
+  font-size: 1.125rem;
+  color: #e4e6eb;
+  line-height: 1.6;
+}
+
+.card-viewer-text .value {
+  white-space: pre-wrap;
+}
+
+.card-viewer-flavor .value.italic {
+  font-style: italic;
+  color: #9ca3af;
+  font-size: 1rem;
+}
+
+.card-viewer-mana .value,
+.card-viewer-stats .value,
+.card-viewer-loyalty .value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #60a5fa;
+}
+
+.card-viewer-rarity .value {
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.card-viewer-rarity .value.rarity-mythic {
+  color: #fbbf24;
+}
+
+.card-viewer-rarity .value.rarity-rare {
+  color: #f59e0b;
+}
+
+.card-viewer-rarity .value.rarity-uncommon {
+  color: #6b7280;
+}
+
+.card-viewer-rarity .value.rarity-common {
+  color: #9ca3af;
+}
+
+.card-viewer-price .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.card-viewer-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.8);
+  border: none;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  z-index: 10000;
+}
+
+.card-viewer-nav:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 1);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+}
+
+.card-viewer-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.card-viewer-nav-prev {
+  left: 2rem;
+}
+
+.card-viewer-nav-next {
+  right: 2rem;
+}
+
+.card-viewer-counter {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+  .card-viewer-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem;
+  }
+
+  .card-viewer-image-container {
+    max-height: 50vh;
+  }
+
+  .card-viewer-image {
+    max-width: 100%;
+  }
+
+  .card-viewer-name {
+    font-size: 2rem;
+  }
+
+  .card-viewer-nav {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .card-viewer-nav-prev {
+    left: 1rem;
+  }
+
+  .card-viewer-nav-next {
+    right: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-viewer-overlay {
+    padding: 0;
+  }
+
+  .card-viewer-container {
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .card-viewer-content {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .card-viewer-name {
+    font-size: 1.75rem;
+  }
+
+  .card-viewer-close {
+    top: 1rem;
+    right: 1rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
+  }
+}
+
