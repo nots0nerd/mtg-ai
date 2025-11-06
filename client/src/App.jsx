@@ -721,43 +721,6 @@ function App() {
           </>
         )}
         
-        {/* Debug info */}
-        <div style={{ 
-          position: 'fixed', 
-          bottom: 10, 
-          right: 10, 
-          background: 'rgba(0,0,0,0.9)', 
-          color: 'white', 
-          padding: '15px', 
-          fontSize: '12px', 
-          zIndex: 99999,
-          borderRadius: '8px',
-          border: '2px solid #3b82f6',
-          fontFamily: 'monospace'
-        }}>
-          <div>Viewer: <strong style={{color: viewerOpen ? '#10b981' : '#ef4444'}}>{viewerOpen ? 'OPEN' : 'CLOSED'}</strong></div>
-          <div>Index: {viewerIndex}</div>
-          <div>Cards: {displayCards.length}</div>
-          <button 
-            onClick={() => {
-              console.log('Test button clicked!');
-              if (displayCards.length > 0) {
-                handleCardClick(displayCards[0], 0);
-              }
-            }}
-            style={{ 
-              marginTop: '10px', 
-              padding: '5px 10px', 
-              background: '#3b82f6', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Test Open Viewer
-          </button>
-        </div>
       </div>
       </div>
   );
