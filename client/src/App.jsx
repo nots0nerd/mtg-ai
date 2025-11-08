@@ -745,56 +745,53 @@ function App() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <div className="search-container">
-            <div className="search-input-wrapper">
-              <motion.input
-                type="text"
-                value={prompt}
-                onChange={(e) => {
-                  setPrompt(e.target.value);
+            <motion.input
+              type="text"
+              value={prompt}
+              onChange={(e) => {
+                setPrompt(e.target.value);
+                setShowSuggestions(true);
+                setSelectedSuggestionIndex(-1);
+                setShowRecentSearches(false);
+              }}
+              onFocus={() => {
+                if (prompt.length >= 2) {
                   setShowSuggestions(true);
-                  setSelectedSuggestionIndex(-1);
                   setShowRecentSearches(false);
+                }
+              }}
+              onBlur={() => {
+                // Delay hiding suggestions to allow click events
+                setTimeout(() => {
+                  setShowSuggestions(false);
+                  setShowRecentSearches(false);
+                }, 150);
+              }}
+              onKeyPress={handleKeyPress}
+              placeholder="e.g., creatures with flying"
+              className="search-input"
+              disabled={loading}
+              whileFocus={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            />
+            {recentSearches.length > 0 && (
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowRecentSearches(!showRecentSearches);
+                  setShowSuggestions(false);
                 }}
-                onFocus={() => {
-                  if (prompt.length >= 2) {
-                    setShowSuggestions(true);
-                    setShowRecentSearches(false);
-                  } else if (recentSearches.length > 0 && !showSuggestions) {
-                    setShowRecentSearches(true);
-                  }
-                }}
-                onBlur={() => {
-                  // Delay hiding suggestions to allow click events
-                  setTimeout(() => {
-                    setShowSuggestions(false);
-                    setShowRecentSearches(false);
-                  }, 150);
-                }}
-                onKeyPress={handleKeyPress}
-                placeholder="e.g., creatures with flying"
-                className="search-input"
                 disabled={loading}
-                whileFocus={{ scale: 1.02 }}
+                className="recent-searches-button"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-              />
-              {recentSearches.length > 0 && (
-                <motion.button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowRecentSearches(!showRecentSearches);
-                    setShowSuggestions(false);
-                  }}
-                  disabled={loading}
-                  className="search-dropdown-toggle"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  title="Recent searches"
-                >
-                  <span className="dropdown-icon">🕒</span>
-                </motion.button>
-              )}
-            </div>
+                title="Recent searches"
+              >
+                <span className="button-icon">🕒</span>
+                <span className="button-text">Recent</span>
+              </motion.button>
+            )}
             <motion.button
               onClick={handleSearchClick}
               disabled={loading || !prompt.trim()}
