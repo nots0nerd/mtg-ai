@@ -31,6 +31,53 @@ function App() {
   const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [showRecentSearches, setShowRecentSearches] = useState(false);
+
+  // Load recent searches from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('mtg-recent-searches');
+    if (saved) {
+      try {
+        setRecentSearches(JSON.parse(saved));
+      } catch (e) {
+        console.warn('Failed to parse recent searches from localStorage');
+      }
+    }
+  }, []);
+
+  // Save recent search
+  const saveRecentSearch = (query, results) => {
+    if (!query.trim() || !results || results.length === 0) return;
+
+    const newSearch = {
+      query: query.trim(),
+      timestamp: Date.now(),
+      previewCards: results.slice(0, 3).map(card => ({
+        id: card.id,
+        name: card.name,
+        image_uri: card.image_uris?.small || card.image_uris?.normal,
+        type_line: card.type_line,
+        mana_cost: card.mana_cost
+      }))
+    };
+
+    setRecentSearches(prev => {
+      // Remove duplicates and add to beginning
+      const filtered = prev.filter(search => search.query !== query);
+      const updated = [newSearch, ...filtered].slice(0, 10); // Keep only 10 most recent
+
+      // Save to localStorage
+      localStorage.setItem('mtg-recent-searches', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Clear recent searches
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    localStorage.removeItem('mtg-recent-searches');
+  };
 
   // Search suggestions data
   const searchSuggestions = [
@@ -286,9 +333,14 @@ function App() {
       const cards = response.data.results || [];
       const totalCards = response.data.pagination?.totalCards || cards.length;
       const receivedCards = cards.length;
-      
+
       console.log('📦 Received cards:', receivedCards, 'of', totalCards);
       console.log('🔍 isClientPagination flag:', response.data.pagination?.isClientPagination);
+
+      // Save to recent searches
+      if (cards.length > 0) {
+        saveRecentSearch(searchPrompt, cards);
+      }
       
       // 🆕 Se l'API ha flaggato come client-side pagination O se abbiamo tutte le carte
       const needsClientPagination = response.data.pagination?.isClientPagination || 
@@ -704,6 +756,10 @@ function App() {
               onFocus={() => {
                 if (prompt.length >= 2) {
                   setShowSuggestions(true);
+                  setShowRecentSearches(false);
+                } else if (recentSearches.length > 0) {
+                  setShowRecentSearches(true);
+                  setShowSuggestions(false);
                 }
               }}
               onBlur={() => {
@@ -752,6 +808,65 @@ function App() {
                   >
                     <span className="suggestion-text">{suggestion}</span>
                     <span className="suggestion-icon">🔍</span>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Recent Searches */}
+          <AnimatePresence>
+            {showRecentSearches && recentSearches.length > 0 && !showSuggestions && (
+              <motion.div
+                className="recent-searches"
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.15 }}
+              >
+                <div className="recent-header">
+                  <span className="recent-title">Recent Searches</span>
+                  <button
+                    className="clear-recent-btn"
+                    onClick={clearRecentSearches}
+                    title="Clear recent searches"
+                  >
+                    🗑️
+                  </button>
+                </div>
+                {recentSearches.map((search, index) => (
+                  <motion.div
+                    key={`${search.query}-${search.timestamp}`}
+                    className="recent-search-item"
+                    onClick={() => {
+                      setPrompt(search.query);
+                      setShowRecentSearches(false);
+                      handleSearchClick();
+                    }}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    whileHover={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
+                  >
+                    <div className="recent-search-info">
+                      <div className="recent-search-query">{search.query}</div>
+                      <div className="recent-search-time">
+                        {new Date(search.timestamp).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className="recent-search-preview">
+                      {search.previewCards.map((card, cardIndex) => (
+                        <div key={card.id} className="preview-card">
+                          <img
+                            src={card.image_uri}
+                            alt={card.name}
+                            onError={(e) => {
+                              e.target.src = 'https://via.placeholder.com/40x56/1a1a1a/666?text=No+Img';
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </motion.div>
                 ))}
               </motion.div>
