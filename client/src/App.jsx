@@ -28,6 +28,8 @@ function App() {
   });
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
+  const [quickViewCard, setQuickViewCard] = useState(null);
+  const [quickViewPosition, setQuickViewPosition] = useState({ x: 0, y: 0 });
 
   // Handle card click to open viewer
   const handleCardClick = (card, index) => {
@@ -35,6 +37,22 @@ function App() {
     setViewerIndex(index);
     setViewerOpen(true);
     console.log('🔵🔵🔵 State updated:', { viewerIndex: index, viewerOpen: true });
+  };
+
+  // Handle quick view on hover
+  const handleCardHover = (card, event) => {
+    if (!card) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    setQuickViewPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.top - 10
+    });
+    setQuickViewCard(card);
+  };
+
+  const handleCardLeave = () => {
+    setQuickViewCard(null);
   };
 
   const handleSearch = async (pageNum = 1) => {
@@ -677,6 +695,13 @@ function App() {
                       e.stopPropagation();
                       handleCardClick(card, index);
                     }}
+                    onMouseEnter={(e) => handleCardHover(card, e)}
+                    onMouseLeave={handleCardLeave}
+                    whileHover={{
+                      scale: 1.05,
+                      y: -8,
+                      transition: { duration: 0.2 }
+                    }}
                     initial={{ opacity: 0, y: 30, scale: 0.85, rotateX: -10 }}
                     animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
                     exit={{ opacity: 0, scale: 0.85, y: -20 }}
@@ -759,7 +784,83 @@ function App() {
             />
           </>
         )}
-        
+
+        {/* Quick View Modal */}
+        <AnimatePresence>
+          {quickViewCard && (
+            <motion.div
+              className="quick-view-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onMouseEnter={() => setQuickViewCard(quickViewCard)} // Keep it open
+              onMouseLeave={() => setQuickViewCard(null)}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                pointerEvents: 'none',
+                zIndex: 9998
+              }}
+            >
+              <motion.div
+                className="quick-view-modal"
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 20 }}
+                transition={{ duration: 0.2 }}
+                style={{
+                  position: 'absolute',
+                  left: quickViewPosition.x,
+                  top: quickViewPosition.y,
+                  transform: 'translate(-50%, -100%)',
+                  pointerEvents: 'auto'
+                }}
+              >
+                <div className="quick-view-content">
+                  <div className="quick-view-image">
+                    <img
+                      src={quickViewCard.image_uris?.normal || quickViewCard.image_uris?.large}
+                      alt={quickViewCard.name}
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/150x210/1a1a1a/666?text=No+Image';
+                      }}
+                    />
+                  </div>
+                  <div className="quick-view-info">
+                    <h4>{quickViewCard.name}</h4>
+                    {quickViewCard.mana_cost && (
+                      <p className="mana-cost">{quickViewCard.mana_cost}</p>
+                    )}
+                    {quickViewCard.type_line && (
+                      <p className="type-line">{quickViewCard.type_line}</p>
+                    )}
+                    {quickViewCard.oracle_text && (
+                      <p className="oracle-text">{quickViewCard.oracle_text.substring(0, 100)}...</p>
+                    )}
+                    <div className="quick-view-actions">
+                      <button
+                        className="quick-view-button primary"
+                        onClick={() => {
+                          const cardIndex = displayCards.findIndex(c => c.id === quickViewCard.id);
+                          if (cardIndex !== -1) {
+                            handleCardClick(quickViewCard, cardIndex);
+                          }
+                          setQuickViewCard(null);
+                        }}
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </div>
       </div>
   );

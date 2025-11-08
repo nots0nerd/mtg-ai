@@ -666,3 +666,132 @@
     padding: 0.6rem 1rem;
   }
 }
+
+/* Quick View Modal */
+.quick-view-overlay {
+  pointer-events: none;
+}
+
+.quick-view-modal {
+  width: 320px;
+  max-width: 90vw;
+  background: rgba(31, 41, 55, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.quick-view-content {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.quick-view-image {
+  flex-shrink: 0;
+  width: 120px;
+}
+
+.quick-view-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.quick-view-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.quick-view-info h4 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0 0 0.5rem 0;
+  color: #e4e6eb;
+  line-height: 1.3;
+}
+
+.quick-view-info p {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  line-height: 1.4;
+}
+
+.mana-cost {
+  color: #60a5fa !important;
+  font-weight: 600;
+}
+
+.type-line {
+  color: #6b7280 !important;
+  font-style: italic;
+}
+
+.oracle-text {
+  color: #d1d5db !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.quick-view-actions {
+  margin-top: 0.75rem;
+}
+
+.quick-view-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-view-button.primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.quick-view-button.primary:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Enhanced card hover effects */
+.card-item:hover {
+  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.3);
+}
+
+.card-item:hover .card-image-container::before {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+/* Mobile responsive for quick view */
+@media (max-width: 768px) {
+  .quick-view-modal {
+    width: 280px;
+  }
+
+  .quick-view-content {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .quick-view-image {
+    width: 100%;
+    text-align: center;
+  }
+
+  .quick-view-image img {
+    max-width: 150px;
+  }
+}
