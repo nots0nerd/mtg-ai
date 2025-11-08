@@ -148,27 +148,6 @@ function CardViewer({ cards, initialIndex, onClose }) {
             </span>
           </div>
 
-          {/* Tabs Navigation */}
-          <div className="card-viewer-tabs">
-            {[
-              { id: 'details', label: 'Details', icon: '📋' },
-              { id: 'legality', label: 'Legality', icon: '⚖️' },
-              { id: 'price', label: 'Price', icon: '💰' },
-              { id: 'rulings', label: 'Rulings', icon: '📖' }
-            ].map(tab => (
-              <motion.button
-                key={tab.id}
-                className={`card-viewer-tab ${activeTab === tab.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-              >
-                <span className="tab-icon">{tab.icon}</span>
-                <span className="tab-label">{tab.label}</span>
-              </motion.button>
-            ))}
-          </div>
 
           {/* Main Content - Scryfall-inspired Layout */}
           <motion.div
