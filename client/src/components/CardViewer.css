@@ -64,6 +64,11 @@
   height: 100%;
   overflow-y: auto;
   touch-action: pan-y;
+  cursor: grab;
+}
+
+.card-viewer-content:active {
+  cursor: grabbing;
 }
 
 .card-viewer-image-container {
@@ -760,6 +765,49 @@
 .thumbnail-nav:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+/* Swipe Hint */
+.swipe-hint {
+  position: absolute;
+  bottom: 8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(59, 130, 246, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  z-index: 10001;
+  pointer-events: none;
+}
+
+.swipe-hint-icon {
+  font-size: 1rem;
+  animation: swipe-bounce 1.5s ease-in-out infinite;
+}
+
+.swipe-hint-text {
+  font-size: 0.8rem;
+}
+
+@keyframes swipe-bounce {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
 }
 
 /* Mobile responsive for thumbnails */

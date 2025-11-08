@@ -6,6 +6,7 @@ function CardViewer({ cards, initialIndex, onClose }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex || 0);
   const [flippedCardId, setFlippedCardId] = useState(null);
   const [activeTab, setActiveTab] = useState('details');
+  const [isDragging, setIsDragging] = useState(false);
   const x = useMotionValue(0);
   const dragControls = useDragControls();
 
@@ -25,13 +26,29 @@ function CardViewer({ cards, initialIndex, onClose }) {
     }
   };
   
-  // Swipe detection
+  // Enhanced swipe detection for mobile
   const handleDragEnd = (event, info) => {
-    const threshold = 50;
-    if (info.offset.x > threshold && currentIndex > 0) {
-      handlePrevious();
-    } else if (info.offset.x < -threshold && currentIndex < cards.length - 1) {
-      handleNext();
+    const velocityThreshold = 500; // Minimum velocity for swipe
+    const distanceThreshold = 75; // Minimum distance for swipe
+
+    // Check velocity-based swipe (fast swipe)
+    if (Math.abs(info.velocity.x) > velocityThreshold) {
+      if (info.velocity.x > 0 && currentIndex > 0) {
+        handlePrevious();
+        return;
+      } else if (info.velocity.x < 0 && currentIndex < cards.length - 1) {
+        handleNext();
+        return;
+      }
+    }
+
+    // Check distance-based swipe (slow swipe)
+    if (Math.abs(info.offset.x) > distanceThreshold) {
+      if (info.offset.x > 0 && currentIndex > 0) {
+        handlePrevious();
+      } else if (info.offset.x < 0 && currentIndex < cards.length - 1) {
+        handleNext();
+      }
     }
   };
 
@@ -151,13 +168,20 @@ function CardViewer({ cards, initialIndex, onClose }) {
           </div>
 
           {/* Main Content */}
-          <motion.div 
+          <motion.div
             className="card-viewer-content"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
-            onDragEnd={handleDragEnd}
+            dragElastic={0.3}
+            dragMomentum={false}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={(event, info) => {
+              setIsDragging(false);
+              handleDragEnd(event, info);
+            }}
             dragControls={dragControls}
+            whileDrag={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
             {/* Left: Card Image */}
             <div className="card-viewer-image-container">
@@ -363,6 +387,22 @@ function CardViewer({ cards, initialIndex, onClose }) {
               </AnimatePresence>
             </div>
           </motion.div>
+
+          {/* Swipe Hint for Mobile */}
+          <AnimatePresence>
+            {isDragging && (
+              <motion.div
+                className="swipe-hint"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="swipe-hint-icon">↔️</div>
+                <div className="swipe-hint-text">Swipe to navigate</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Thumbnail Navigation */}
           <div className="card-viewer-thumbnails">
