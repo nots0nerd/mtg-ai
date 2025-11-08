@@ -78,20 +78,24 @@ function CardViewer({ cards, initialIndex, onClose }) {
 
   const isDoubleFaced = currentCard?.card_faces && currentCard.card_faces.length === 2;
   const isFlipped = flippedCardId === currentCard?.id;
+
+  // Check if card should allow flipping (adventure cards and omen cards don't flip)
+  const canFlip = isDoubleFaced && currentCard?.card_faces?.[0]?.type_line &&
+    !currentCard.card_faces[0].type_line.toLowerCase().includes('adventure') &&
+    !currentCard.card_faces[0].type_line.toLowerCase().includes('omen');
   
   // Get current face image (front or back)
   const getCardImage = () => {
-    if (isDoubleFaced) {
-      const face = isFlipped ? currentCard.card_faces[1] : currentCard.card_faces[0];
-      return face.image_uris?.normal || face.image_uris?.large || currentCard.image_uris?.normal;
+    if (canFlip && isFlipped) {
+      return currentCard.card_faces[1].image_uris?.normal || currentCard.card_faces[1].image_uris?.large || currentCard.image_uris?.normal;
     }
     return currentCard?.image_uris?.normal || currentCard?.image_uris?.large || currentCard?.image_uris?.png;
   };
 
   const getCardInfo = () => {
-    if (isDoubleFaced && isFlipped) {
+    if (canFlip && isFlipped) {
       return currentCard.card_faces[1];
-    } else if (isDoubleFaced) {
+    } else if (canFlip) {
       return currentCard.card_faces[0];
     }
     return currentCard;
@@ -186,21 +190,21 @@ function CardViewer({ cards, initialIndex, onClose }) {
             {/* Left: Card Image */}
             <div className="card-viewer-image-container">
               <motion.div
-                className={`card-image-wrapper ${isDoubleFaced ? 'double-faced' : ''}`}
-                animate={{ rotateY: isFlipped ? 180 : 0 }}
+                className={`card-image-wrapper ${canFlip ? 'double-faced' : ''}`}
+                animate={{ rotateY: canFlip && isFlipped ? 180 : 0 }}
                 transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
               >
                 <img
                   src={getCardImage()}
                   alt={cardInfo.name || currentCard.name}
                   className="card-viewer-image"
-                  onClick={() => isDoubleFaced && handleCardClick(currentCard.id)}
-                  style={{ cursor: isDoubleFaced ? 'pointer' : 'default' }}
+                  onClick={() => canFlip && handleCardClick(currentCard.id)}
+                  style={{ cursor: canFlip ? 'pointer' : 'default' }}
                 />
               </motion.div>
               
-              {/* Flip indicator for double-faced cards */}
-              {isDoubleFaced && (
+              {/* Flip indicator for double-faced cards that can flip */}
+              {canFlip && (
                 <motion.div
                   className="flip-indicator"
                   initial={{ opacity: 0 }}

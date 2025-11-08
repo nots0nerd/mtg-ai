@@ -610,65 +610,126 @@
   }
 
   .card-viewer-container {
-    height: 100vh;
-    max-height: 100vh;
+    height: 85vh;
+    max-height: 85vh;
     border-radius: 0;
+    padding: 0;
   }
 
   .card-viewer-content {
-    padding: 1.5rem;
-    gap: 1.5rem;
+    padding: 1rem;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  .card-viewer-image-container {
+    max-height: 35vh;
+  }
+
+  .card-viewer-image {
+    max-width: 280px;
+    height: auto;
   }
 
   .card-viewer-name {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
+  }
+
+  .card-viewer-info {
+    gap: 1rem;
+    padding-right: 0.5rem;
+  }
+
+  .card-viewer-info > div {
+    padding: 0.75rem;
   }
 
   .card-viewer-close {
-    top: 1rem;
-    right: 1rem;
-    width: 36px;
-    height: 36px;
-    font-size: 1.25rem;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
   }
 
   /* Progress bar mobile small */
   .card-viewer-progress {
-    width: 120px;
-    top: 1rem;
+    width: 100px;
+    top: 0.75rem;
+    left: 3rem;
   }
 
   .card-viewer-progress-text {
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
   }
 
   /* Tabs mobile small */
   .card-viewer-tabs {
-    margin-top: 3rem;
-    padding: 0 0.5rem;
+    margin-top: 2.5rem;
+    padding: 0 0.25rem;
+    gap: 0.25rem;
   }
 
   .card-viewer-tab {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.7rem;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.65rem;
+    min-width: auto;
   }
 
   .tab-icon {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 
   .tab-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 
   /* Tab content mobile small */
   .tab-content {
-    max-height: 35vh;
+    max-height: 25vh;
+    gap: 0.75rem;
   }
 
   .tab-content h3 {
-    font-size: 1.125rem;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Compact navigation indicator mobile */
+  .card-viewer-nav-indicator {
+    margin: 0.75rem 0;
+    padding: 0.5rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .nav-arrow {
+    width: 32px;
+    height: 32px;
+  }
+
+  .position-text {
+    font-size: 0.8rem;
+  }
+
+  /* Navigation arrows mobile */
+  .card-viewer-nav {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
+
+  .card-viewer-nav-prev {
+    left: 0.5rem;
+  }
+
+  .card-viewer-nav-next {
+    right: 0.5rem;
+  }
+
+  /* Swipe hint mobile */
+  .swipe-hint {
+    bottom: 6rem;
   }
 }
 
