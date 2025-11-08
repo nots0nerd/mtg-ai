@@ -752,19 +752,20 @@ function App() {
                 setPrompt(e.target.value);
                 setShowSuggestions(true);
                 setSelectedSuggestionIndex(-1);
+                setShowRecentSearches(false);
               }}
               onFocus={() => {
                 if (prompt.length >= 2) {
                   setShowSuggestions(true);
                   setShowRecentSearches(false);
-                } else if (recentSearches.length > 0) {
-                  setShowRecentSearches(true);
-                  setShowSuggestions(false);
                 }
               }}
               onBlur={() => {
                 // Delay hiding suggestions to allow click events
-                setTimeout(() => setShowSuggestions(false), 150);
+                setTimeout(() => {
+                  setShowSuggestions(false);
+                  setShowRecentSearches(false);
+                }, 150);
               }}
               onKeyPress={handleKeyPress}
               placeholder="e.g., creatures with flying"
@@ -782,6 +783,21 @@ function App() {
               transition={{ duration: 0.2 }}
             >
               {loading ? 'Searching...' : 'Search'}
+            </motion.button>
+            <motion.button
+              onClick={() => {
+                setShowRecentSearches(!showRecentSearches);
+                setShowSuggestions(false);
+              }}
+              disabled={loading}
+              className="recent-searches-button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              title="Recent searches"
+            >
+              <span className="button-icon">🕒</span>
+              <span className="button-text">Recent</span>
             </motion.button>
           </div>
 
@@ -814,61 +830,89 @@ function App() {
             )}
           </AnimatePresence>
 
-          {/* Recent Searches */}
+          {/* Recent Searches Dropdown */}
           <AnimatePresence>
-            {showRecentSearches && recentSearches.length > 0 && !showSuggestions && (
+            {showRecentSearches && (
               <motion.div
-                className="recent-searches"
+                className="recent-searches-dropdown"
                 initial={{ opacity: 0, y: -10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                 transition={{ duration: 0.15 }}
               >
-                <div className="recent-header">
-                  <span className="recent-title">Recent Searches</span>
-                  <button
-                    className="clear-recent-btn"
-                    onClick={clearRecentSearches}
-                    title="Clear recent searches"
-                  >
-                    🗑️
-                  </button>
-                </div>
-                {recentSearches.map((search, index) => (
-                  <motion.div
-                    key={`${search.query}-${search.timestamp}`}
-                    className="recent-search-item"
-                    onClick={() => {
-                      setPrompt(search.query);
-                      setShowRecentSearches(false);
-                      handleSearchClick();
-                    }}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    whileHover={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
-                  >
-                    <div className="recent-search-info">
-                      <div className="recent-search-query">{search.query}</div>
-                      <div className="recent-search-time">
-                        {new Date(search.timestamp).toLocaleDateString()}
-                      </div>
+                {recentSearches.length > 0 ? (
+                  <>
+                    <div className="recent-header">
+                      <span className="recent-title">Recent Searches</span>
+                      <button
+                        className="clear-recent-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearRecentSearches();
+                        }}
+                        title="Clear all recent searches"
+                      >
+                        🗑️
+                      </button>
                     </div>
-                    <div className="recent-search-preview">
-                      {search.previewCards.map((card, cardIndex) => (
-                        <div key={card.id} className="preview-card">
-                          <img
-                            src={card.image_uri}
-                            alt={card.name}
-                            onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/40x56/1a1a1a/666?text=No+Img';
-                            }}
-                          />
+                    {recentSearches.slice(0, 3).map((search, index) => (
+                      <motion.div
+                        key={`${search.query}-${search.timestamp}`}
+                        className="recent-search-item"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.03 }}
+                      >
+                        <div
+                          className="recent-search-content"
+                          onClick={() => {
+                            setPrompt(search.query);
+                            setShowRecentSearches(false);
+                            handleSearchClick();
+                          }}
+                        >
+                          <div className="recent-search-info">
+                            <div className="recent-search-query">{search.query}</div>
+                            <div className="recent-search-time">
+                              {new Date(search.timestamp).toLocaleDateString()} at {new Date(search.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
+                          <div className="recent-search-preview">
+                            {search.previewCards.map((card, cardIndex) => (
+                              <div key={card.id} className="preview-card">
+                                <img
+                                  src={card.image_uri}
+                                  alt={card.name}
+                                  onError={(e) => {
+                                    e.target.src = 'https://via.placeholder.com/40x56/1a1a1a/666?text=No+Img';
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                ))}
+                        <button
+                          className="delete-search-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const updated = recentSearches.filter(s => s.timestamp !== search.timestamp);
+                            setRecentSearches(updated);
+                            localStorage.setItem('mtg-recent-searches', JSON.stringify(updated));
+                          }}
+                          title="Delete this search"
+                        >
+                          ✕
+                        </button>
+                      </motion.div>
+                    ))}
+                  </>
+                ) : (
+                  <div className="recent-empty">
+                    <div className="empty-icon">🕒</div>
+                    <div className="empty-text">No recent searches</div>
+                    <div className="empty-subtext">Your search history will appear here</div>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
