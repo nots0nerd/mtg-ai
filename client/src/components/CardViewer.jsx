@@ -5,6 +5,7 @@ import './CardViewer.css';
 function CardViewer({ cards, initialIndex, onClose }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex || 0);
   const [flippedCardId, setFlippedCardId] = useState(null);
+  const [activeTab, setActiveTab] = useState('details');
   const x = useMotionValue(0);
   const dragControls = useDragControls();
 
@@ -116,6 +117,39 @@ function CardViewer({ cards, initialIndex, onClose }) {
             ✕
           </motion.button>
 
+          {/* Progress Bar */}
+          <div className="card-viewer-progress">
+            <div
+              className="card-viewer-progress-bar"
+              style={{ width: `${((currentIndex + 1) / cards.length) * 100}%` }}
+            />
+            <span className="card-viewer-progress-text">
+              {currentIndex + 1} / {cards.length}
+            </span>
+          </div>
+
+          {/* Tabs Navigation */}
+          <div className="card-viewer-tabs">
+            {[
+              { id: 'details', label: 'Details', icon: '📋' },
+              { id: 'legality', label: 'Legality', icon: '⚖️' },
+              { id: 'price', label: 'Price', icon: '💰' },
+              { id: 'rulings', label: 'Rulings', icon: '📖' }
+            ].map(tab => (
+              <motion.button
+                key={tab.id}
+                className={`card-viewer-tab ${activeTab === tab.id ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab.id)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+              >
+                <span className="tab-icon">{tab.icon}</span>
+                <span className="tab-label">{tab.label}</span>
+              </motion.button>
+            ))}
+          </div>
+
           {/* Main Content */}
           <motion.div 
             className="card-viewer-content"
@@ -154,89 +188,179 @@ function CardViewer({ cards, initialIndex, onClose }) {
               )}
             </div>
 
-            {/* Right: Card Info */}
+            {/* Right: Card Info with Tabs */}
             <div className="card-viewer-info">
-              <motion.div
-                key={currentCard.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h2 className="card-viewer-name">{cardInfo.name || currentCard.name}</h2>
-                
-                {cardInfo.mana_cost && (
-                  <div className="card-viewer-mana">
-                    <span className="label">Mana Cost:</span>
-                    <span className="value">{cardInfo.mana_cost}</span>
-                  </div>
+              <AnimatePresence mode="wait">
+                {activeTab === 'details' && (
+                  <motion.div
+                    key={`details-${currentCard.id}`}
+                    className="tab-content"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h2 className="card-viewer-name">{cardInfo.name || currentCard.name}</h2>
+
+                    {cardInfo.mana_cost && (
+                      <div className="card-viewer-mana">
+                        <span className="label">Mana Cost:</span>
+                        <span className="value">{cardInfo.mana_cost}</span>
+                      </div>
+                    )}
+
+                    {cardInfo.type_line && (
+                      <div className="card-viewer-type">
+                        <span className="label">Type:</span>
+                        <span className="value">{cardInfo.type_line}</span>
+                      </div>
+                    )}
+
+                    {cardInfo.oracle_text && (
+                      <div className="card-viewer-text">
+                        <span className="label">Oracle Text:</span>
+                        <div className="value" dangerouslySetInnerHTML={{
+                          __html: cardInfo.oracle_text.replace(/\n/g, '<br />')
+                        }} />
+                      </div>
+                    )}
+
+                    {cardInfo.flavor_text && (
+                      <div className="card-viewer-flavor">
+                        <span className="label">Flavor Text:</span>
+                        <div className="value italic">{cardInfo.flavor_text}</div>
+                      </div>
+                    )}
+
+                    {cardInfo.power !== undefined && cardInfo.toughness !== undefined && (
+                      <div className="card-viewer-stats">
+                        <span className="label">Power/Toughness:</span>
+                        <span className="value">{cardInfo.power}/{cardInfo.toughness}</span>
+                      </div>
+                    )}
+
+                    {cardInfo.loyalty && (
+                      <div className="card-viewer-loyalty">
+                        <span className="label">Loyalty:</span>
+                        <span className="value">{cardInfo.loyalty}</span>
+                      </div>
+                    )}
+
+                    {currentCard.set_name && (
+                      <div className="card-viewer-set">
+                        <span className="label">Set:</span>
+                        <span className="value">{currentCard.set_name}</span>
+                      </div>
+                    )}
+
+                    {currentCard.rarity && (
+                      <div className="card-viewer-rarity">
+                        <span className="label">Rarity:</span>
+                        <span className={`value rarity-${currentCard.rarity}`}>{currentCard.rarity}</span>
+                      </div>
+                    )}
+
+                    {cardInfo.artist && (
+                      <div className="card-viewer-artist">
+                        <span className="label">Artist:</span>
+                        <span className="value">{cardInfo.artist}</span>
+                      </div>
+                    )}
+                  </motion.div>
                 )}
 
-                {cardInfo.type_line && (
-                  <div className="card-viewer-type">
-                    <span className="label">Type:</span>
-                    <span className="value">{cardInfo.type_line}</span>
-                  </div>
+                {activeTab === 'legality' && (
+                  <motion.div
+                    key={`legality-${currentCard.id}`}
+                    className="tab-content"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h3>Format Legality</h3>
+                    {currentCard.legalities ? (
+                      <div className="legality-grid">
+                        {Object.entries(currentCard.legalities).map(([format, status]) => (
+                          <div key={format} className={`legality-item ${status.toLowerCase()}`}>
+                            <span className="format-name">{format.replace(/_/g, ' ').toUpperCase()}</span>
+                            <span className={`status status-${status.toLowerCase()}`}>{status}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="no-data">No legality information available</div>
+                    )}
+                  </motion.div>
                 )}
 
-                {cardInfo.oracle_text && (
-                  <div className="card-viewer-text">
-                    <span className="label">Oracle Text:</span>
-                    <div className="value" dangerouslySetInnerHTML={{ 
-                      __html: cardInfo.oracle_text.replace(/\n/g, '<br />') 
-                    }} />
-                  </div>
+                {activeTab === 'price' && (
+                  <motion.div
+                    key={`price-${currentCard.id}`}
+                    className="tab-content"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h3>Price Information</h3>
+                    <div className="price-info">
+                      {currentCard.usd && (
+                        <div className="price-item">
+                          <span className="label">USD:</span>
+                          <span className="value">${currentCard.usd}</span>
+                        </div>
+                      )}
+                      {currentCard.usd_foil && (
+                        <div className="price-item">
+                          <span className="label">USD Foil:</span>
+                          <span className="value">${currentCard.usd_foil}</span>
+                        </div>
+                      )}
+                      {currentCard.eur && (
+                        <div className="price-item">
+                          <span className="label">EUR:</span>
+                          <span className="value">€{currentCard.eur}</span>
+                        </div>
+                      )}
+                      {currentCard.tix && (
+                        <div className="price-item">
+                          <span className="label">MTGO Tix:</span>
+                          <span className="value">{currentCard.tix}</span>
+                        </div>
+                      )}
+                      {!currentCard.usd && !currentCard.usd_foil && !currentCard.eur && !currentCard.tix && (
+                        <div className="no-data">No price information available</div>
+                      )}
+                    </div>
+                  </motion.div>
                 )}
 
-                {cardInfo.flavor_text && (
-                  <div className="card-viewer-flavor">
-                    <span className="label">Flavor Text:</span>
-                    <div className="value italic">{cardInfo.flavor_text}</div>
-                  </div>
+                {activeTab === 'rulings' && (
+                  <motion.div
+                    key={`rulings-${currentCard.id}`}
+                    className="tab-content"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h3>Official Rulings</h3>
+                    {currentCard.rulings && currentCard.rulings.length > 0 ? (
+                      <div className="rulings-list">
+                        {currentCard.rulings.map((ruling, index) => (
+                          <div key={index} className="ruling-item">
+                            <div className="ruling-date">{ruling.published_at}</div>
+                            <div className="ruling-text">{ruling.comment}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="no-data">No rulings available for this card</div>
+                    )}
+                  </motion.div>
                 )}
-
-                {cardInfo.power !== undefined && cardInfo.toughness !== undefined && (
-                  <div className="card-viewer-stats">
-                    <span className="label">Power/Toughness:</span>
-                    <span className="value">{cardInfo.power}/{cardInfo.toughness}</span>
-                  </div>
-                )}
-
-                {cardInfo.loyalty && (
-                  <div className="card-viewer-loyalty">
-                    <span className="label">Loyalty:</span>
-                    <span className="value">{cardInfo.loyalty}</span>
-                  </div>
-                )}
-
-                {currentCard.set_name && (
-                  <div className="card-viewer-set">
-                    <span className="label">Set:</span>
-                    <span className="value">{currentCard.set_name}</span>
-                  </div>
-                )}
-
-                {currentCard.rarity && (
-                  <div className="card-viewer-rarity">
-                    <span className="label">Rarity:</span>
-                    <span className={`value rarity-${currentCard.rarity}`}>{currentCard.rarity}</span>
-                  </div>
-                )}
-
-                {currentCard.usd && (
-                  <div className="card-viewer-price">
-                    <span className="label">Price:</span>
-                    <span className="value">${currentCard.usd}</span>
-                  </div>
-                )}
-
-                {cardInfo.artist && (
-                  <div className="card-viewer-artist">
-                    <span className="label">Artist:</span>
-                    <span className="value">{cardInfo.artist}</span>
-                  </div>
-                )}
-              </motion.div>
+              </AnimatePresence>
             </div>
           </motion.div>
 
@@ -267,10 +391,6 @@ function CardViewer({ cards, initialIndex, onClose }) {
             →
           </motion.button>
 
-          {/* Card Counter */}
-          <div className="card-viewer-counter">
-            {currentIndex + 1} / {cards.length}
-          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>
