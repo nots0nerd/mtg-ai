@@ -5,7 +5,6 @@ import './CardViewer.css';
 function CardViewer({ cards, initialIndex, onClose }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex || 0);
   const [flippedCardId, setFlippedCardId] = useState(null);
-  const [activeTab, setActiveTab] = useState('details');
   const [isDragging, setIsDragging] = useState(false);
   const x = useMotionValue(0);
   const dragControls = useDragControls();
@@ -221,24 +220,6 @@ function CardViewer({ cards, initialIndex, onClose }) {
 
             {/* Right: Card Details */}
             <div className="card-details">
-              {/* Card Actions */}
-              <div className="card-actions">
-                <motion.button
-                  className="card-action-button"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    // TODO: Add to deck functionality
-                    console.log('Add to deck:', currentCard.name);
-                  }}
-                >
-                  <svg focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="action-icon">
-                    <path d="M320 64h-16V48c0-26.47-21.53-48-48-48h-64c-26.47 0-48 21.53-48 48v16h-16C57.31 64 0 121.31 0 192v256c0 35.35 28.65 64 64 64h320c35.35 0 64-28.65 64-64V192c0-70.69-57.31-128-128-128zM176 48c0-8.83 7.19-16 16-16h64c8.81 0 16 7.17 16 16v16h-96V48zm160 432H112v-96h224v96zm0-128H112v-32c0-17.67 14.33-32 32-32h160c17.67 0 32 14.33 32 32v32zm80 96c0 17.64-14.36 32-32 32h-16V320c0-35.29-28.71-64-64-64H144c-35.29 0-64 28.71-64 64v160H64c-17.64 0-32-14.36-32-32V192c0-52.94 43.06-96 96-96h192c52.94 0 96 43.06 96 96v256zM312 160H136c-4.42 0-8 3.58-8 8v16c0 4.42 3.58 8 8 8h176c4.42 0 8-3.58 8-8v-16c0-4.42-3.58-8-8-8z"/>
-                  </svg>
-                  <b>Add to Deck</b>
-                </motion.button>
-              </div>
-
               {/* Card Text */}
               <div className="card-text">
                 <h1 className="card-text-title">
@@ -290,154 +271,91 @@ function CardViewer({ cards, initialIndex, onClose }) {
                   </p>
                 )}
 
-                {/* Tabs for additional information */}
-                <div className="card-viewer-tabs">
-                  {[
-                    { id: 'details', label: 'Details', icon: '📋' },
-                    { id: 'legality', label: 'Legality', icon: '⚖️' },
-                    { id: 'price', label: 'Price', icon: '💰' },
-                    { id: 'rulings', label: 'Rulings', icon: '📖' }
-                  ].map(tab => (
-                    <motion.button
-                      key={tab.id}
-                      className={`card-viewer-tab ${activeTab === tab.id ? 'active' : ''}`}
-                      onClick={() => setActiveTab(tab.id)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <span className="tab-icon">{tab.icon}</span>
-                      <span className="tab-label">{tab.label}</span>
-                    </motion.button>
-                  ))}
+                {/* Additional Information */}
+                {currentCard.set_name && (
+                  <div className="card-detail-item">
+                    <span className="label">Set:</span>
+                    <span className="value">{currentCard.set_name}</span>
+                  </div>
+                )}
+
+                {currentCard.rarity && (
+                  <div className="card-detail-item">
+                    <span className="label">Rarity:</span>
+                    <span className={`value rarity-${currentCard.rarity}`}>{currentCard.rarity}</span>
+                  </div>
+                )}
+
+                {/* Format Legality */}
+                {currentCard.legalities && (
+                  <div className="card-legality-section">
+                    <h4>Format Legality</h4>
+                    <div className="legality-grid">
+                      {Object.entries(currentCard.legalities).map(([format, status]) => (
+                        <div key={format} className={`legality-item ${status.toLowerCase()}`}>
+                          <span className="format-name">{format.replace(/_/g, ' ').toUpperCase()}</span>
+                          <span className={`status status-${status.toLowerCase()}`}>{status}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Price Information */}
+                <div className="card-price-section">
+                  <h4>Price Information</h4>
+                  <table className="prints-table">
+                    <thead>
+                      <tr>
+                        <th>Prints</th>
+                        <th>USD</th>
+                        <th>EUR</th>
+                        <th>TIX</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="current">
+                        <td>
+                          <div className="print-info">
+                            <span className="set-name">{currentCard.set_name}</span>
+                            <span className="card-number">#{currentCard.collector_number}</span>
+                          </div>
+                        </td>
+                        <td>{currentCard.usd ? `$${currentCard.usd}` : '-'}</td>
+                        <td>{currentCard.eur ? `€${currentCard.eur}` : '-'}</td>
+                        <td>{currentCard.tix || '-'}</td>
+                      </tr>
+                      {currentCard.usd_foil && (
+                        <tr>
+                          <td>
+                            <div className="print-info">
+                              <span className="set-name">{currentCard.set_name} (Foil)</span>
+                              <span className="card-number">#{currentCard.collector_number}</span>
+                            </div>
+                          </td>
+                          <td>${currentCard.usd_foil}</td>
+                          <td>-</td>
+                          <td>-</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
 
-                {/* Tab Content */}
-                <AnimatePresence mode="wait">
-                  {activeTab === 'details' && (
-                    <motion.div
-                      key={`details-${currentCard.id}`}
-                      className="tab-content"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {currentCard.set_name && (
-                        <div className="card-detail-item">
-                          <span className="label">Set:</span>
-                          <span className="value">{currentCard.set_name}</span>
+                {/* Official Rulings */}
+                {currentCard.rulings && currentCard.rulings.length > 0 && (
+                  <div className="card-rulings-section">
+                    <h4>Official Rulings</h4>
+                    <div className="rulings-list">
+                      {currentCard.rulings.map((ruling, index) => (
+                        <div key={index} className="ruling-item">
+                          <div className="ruling-date">{ruling.published_at}</div>
+                          <div className="ruling-text">{ruling.comment}</div>
                         </div>
-                      )}
-
-                      {currentCard.rarity && (
-                        <div className="card-detail-item">
-                          <span className="label">Rarity:</span>
-                          <span className={`value rarity-${currentCard.rarity}`}>{currentCard.rarity}</span>
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-
-                  {activeTab === 'legality' && (
-                    <motion.div
-                      key={`legality-${currentCard.id}`}
-                      className="tab-content"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <h4>Format Legality</h4>
-                      {currentCard.legalities ? (
-                        <div className="legality-grid">
-                          {Object.entries(currentCard.legalities).map(([format, status]) => (
-                            <div key={format} className={`legality-item ${status.toLowerCase()}`}>
-                              <span className="format-name">{format.replace(/_/g, ' ').toUpperCase()}</span>
-                              <span className={`status status-${status.toLowerCase()}`}>{status}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="no-data">No legality information available</div>
-                      )}
-                    </motion.div>
-                  )}
-
-                  {activeTab === 'price' && (
-                    <motion.div
-                      key={`price-${currentCard.id}`}
-                      className="tab-content"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <h4>Price Information</h4>
-                      <table className="prints-table">
-                        <thead>
-                          <tr>
-                            <th>Prints</th>
-                            <th>USD</th>
-                            <th>EUR</th>
-                            <th>TIX</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr className="current">
-                            <td>
-                              <div className="print-info">
-                                <span className="set-name">{currentCard.set_name}</span>
-                                <span className="card-number">#{currentCard.collector_number}</span>
-                              </div>
-                            </td>
-                            <td>{currentCard.usd ? `$${currentCard.usd}` : '-'}</td>
-                            <td>{currentCard.eur ? `€${currentCard.eur}` : '-'}</td>
-                            <td>{currentCard.tix || '-'}</td>
-                          </tr>
-                          {currentCard.usd_foil && (
-                            <tr>
-                              <td>
-                                <div className="print-info">
-                                  <span className="set-name">{currentCard.set_name} (Foil)</span>
-                                  <span className="card-number">#{currentCard.collector_number}</span>
-                                </div>
-                              </td>
-                              <td>${currentCard.usd_foil}</td>
-                              <td>-</td>
-                              <td>-</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </motion.div>
-                  )}
-
-                  {activeTab === 'rulings' && (
-                    <motion.div
-                      key={`rulings-${currentCard.id}`}
-                      className="tab-content"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <h4>Official Rulings</h4>
-                      {currentCard.rulings && currentCard.rulings.length > 0 ? (
-                        <div className="rulings-list">
-                          {currentCard.rulings.map((ruling, index) => (
-                            <div key={index} className="ruling-item">
-                              <div className="ruling-date">{ruling.published_at}</div>
-                              <div className="ruling-text">{ruling.comment}</div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="no-data">No rulings available for this card</div>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
