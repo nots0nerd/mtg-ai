@@ -61,7 +61,6 @@
   gap: 3rem;
   padding: 3rem;
   height: 100%;
-  overflow-y: auto;
   touch-action: pan-y;
   cursor: grab;
   align-items: flex-start;
@@ -92,6 +91,7 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+  max-height: calc(100vh - 8rem); /* Limita l'altezza per evitare che vada oltre il viewport */
 }
 
 .card-details::-webkit-scrollbar {
