@@ -625,16 +625,16 @@
   }
 
   .card-viewer-image-container {
-    max-height: 25vh;
+    max-height: 28vh;
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
   .card-viewer-image {
-    max-width: 180px;
+    max-width: 200px;
     height: auto;
-    max-height: 22vh;
+    max-height: 25vh;
     object-fit: contain;
   }
 
@@ -672,39 +672,61 @@
     font-size: 1rem;
   }
 
-  /* Progress bar mobile small */
+  /* Progress bar mobile - More visible */
   .card-viewer-progress {
-    width: 80px;
-    top: 0.5rem;
-    left: 2.5rem;
-    height: 4px;
+    width: 120px;
+    top: 0.75rem;
+    left: 3rem;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .card-viewer-progress-bar {
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
   }
 
   .card-viewer-progress-text {
-    font-size: 0.6rem;
-    padding: 0.1rem 0.3rem;
-    top: -20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.4rem;
+    top: -24px;
+    background: rgba(17, 24, 39, 0.9);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  /* Tabs mobile small */
+  /* Tabs mobile - Better touch targets */
   .card-viewer-tabs {
-    margin-top: 1.5rem;
-    padding: 0 0.25rem;
+    margin-top: 0.75rem;
+    padding: 0 0.5rem;
     gap: 0.25rem;
   }
 
   .card-viewer-tab {
-    padding: 0.3rem 0.4rem;
-    font-size: 0.6rem;
-    min-width: auto;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    min-width: 70px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-viewer-tab.active {
+    background: rgba(59, 130, 246, 0.9);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
   }
 
   .tab-icon {
-    font-size: 0.65rem;
+    font-size: 0.8rem;
+    margin-right: 0.25rem;
   }
 
   .tab-label {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 600;
   }
 
   /* Tab content mobile small */
@@ -736,36 +758,55 @@
     font-size: 0.75rem;
   }
 
-  /* Navigation arrows mobile */
+  /* Navigation arrows - Hidden on mobile (use swipe gestures instead) */
   .card-viewer-nav {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
+    display: none;
   }
 
-  .card-viewer-nav-prev {
-    left: 0.25rem;
-  }
-
-  .card-viewer-nav-next {
-    right: 0.25rem;
-  }
-
-  /* Swipe hint mobile */
+  /* Swipe hint mobile - More prominent */
   .swipe-hint {
-    bottom: 5rem;
+    bottom: 4rem;
     left: 50%;
     transform: translateX(-50%);
-    padding: 0.4rem 0.8rem;
-    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    background: rgba(59, 130, 246, 0.9);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    animation: swipe-bounce 2s ease-in-out infinite;
   }
 
   .swipe-hint-icon {
-    font-size: 0.9rem;
+    font-size: 1rem;
+    margin-right: 0.25rem;
   }
 
   .swipe-hint-text {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  /* Add swipe indicator dots */
+  .swipe-indicators {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .swipe-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .swipe-dot.active {
+    background: rgba(59, 130, 246, 0.9);
+    transform: scale(1.2);
   }
 }
 
@@ -775,7 +816,7 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
   padding: 0.75rem 1.5rem;
   background: rgba(17, 24, 39, 0.6);
   backdrop-filter: blur(10px);

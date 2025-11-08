@@ -408,7 +408,18 @@ function CardViewer({ cards, initialIndex, onClose }) {
             )}
           </AnimatePresence>
 
-          {/* Compact Navigation Indicator */}
+          {/* Swipe Indicators Dots */}
+          <div className="swipe-indicators">
+            {cards.slice(0, 5).map((_, index) => (
+              <div
+                key={index}
+                className={`swipe-dot ${index === Math.min(currentIndex, 4) ? 'active' : ''}`}
+              />
+            ))}
+            {cards.length > 5 && <div className="swipe-dot">⋯</div>}
+          </div>
+
+          {/* Compact Navigation Indicator - Repositioned between card and tabs */}
           <div className="card-viewer-nav-indicator">
             <motion.button
               className="nav-arrow nav-arrow-prev"
@@ -437,7 +448,7 @@ function CardViewer({ cards, initialIndex, onClose }) {
             </motion.button>
           </div>
 
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows - Hidden on mobile, swipe gestures used instead */}
           <motion.button
             className="card-viewer-nav card-viewer-nav-prev"
             onClick={handlePrevious}
