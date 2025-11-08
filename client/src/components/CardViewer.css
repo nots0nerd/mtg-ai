@@ -610,126 +610,162 @@
   }
 
   .card-viewer-container {
-    height: 85vh;
-    max-height: 85vh;
+    height: 90vh;
+    max-height: 90vh;
     border-radius: 0;
     padding: 0;
   }
 
   .card-viewer-content {
-    padding: 1rem;
-    gap: 1rem;
-    grid-template-columns: 1fr;
+    padding: 0.75rem;
+    gap: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 4rem); /* Account for tabs and navigation */
   }
 
   .card-viewer-image-container {
-    max-height: 35vh;
+    max-height: 25vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .card-viewer-image {
-    max-width: 280px;
+    max-width: 180px;
     height: auto;
+    max-height: 22vh;
+    object-fit: contain;
   }
 
   .card-viewer-name {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
   }
 
   .card-viewer-info {
-    gap: 1rem;
-    padding-right: 0.5rem;
+    gap: 0.5rem;
+    padding-right: 0;
+    overflow-y: auto;
+    max-height: 45vh;
   }
 
   .card-viewer-info > div {
-    padding: 0.75rem;
+    padding: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .card-viewer-info::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .card-viewer-info::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.3);
+    border-radius: 2px;
   }
 
   .card-viewer-close {
-    top: 0.75rem;
-    right: 0.75rem;
-    width: 32px;
-    height: 32px;
-    font-size: 1.1rem;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
   }
 
   /* Progress bar mobile small */
   .card-viewer-progress {
-    width: 100px;
-    top: 0.75rem;
-    left: 3rem;
+    width: 80px;
+    top: 0.5rem;
+    left: 2.5rem;
+    height: 4px;
   }
 
   .card-viewer-progress-text {
-    font-size: 0.65rem;
-    padding: 0.15rem 0.4rem;
+    font-size: 0.6rem;
+    padding: 0.1rem 0.3rem;
+    top: -20px;
   }
 
   /* Tabs mobile small */
   .card-viewer-tabs {
-    margin-top: 2.5rem;
+    margin-top: 1.5rem;
     padding: 0 0.25rem;
     gap: 0.25rem;
   }
 
   .card-viewer-tab {
-    padding: 0.35rem 0.5rem;
-    font-size: 0.65rem;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.6rem;
     min-width: auto;
   }
 
   .tab-icon {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 
   .tab-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   /* Tab content mobile small */
   .tab-content {
-    max-height: 25vh;
-    gap: 0.75rem;
+    max-height: 35vh;
+    gap: 0.5rem;
+    padding-right: 0.5rem;
   }
 
   .tab-content h3 {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
   }
 
   /* Compact navigation indicator mobile */
   .card-viewer-nav-indicator {
-    margin: 0.75rem 0;
-    padding: 0.5rem 1rem;
-    gap: 0.75rem;
+    margin: 0.5rem 0;
+    padding: 0.4rem 0.75rem;
+    gap: 0.5rem;
   }
 
   .nav-arrow {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
+    font-size: 1.1rem;
   }
 
   .position-text {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 
   /* Navigation arrows mobile */
   .card-viewer-nav {
-    width: 44px;
-    height: 44px;
-    font-size: 1.3rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
   }
 
   .card-viewer-nav-prev {
-    left: 0.5rem;
+    left: 0.25rem;
   }
 
   .card-viewer-nav-next {
-    right: 0.5rem;
+    right: 0.25rem;
   }
 
   /* Swipe hint mobile */
   .swipe-hint {
-    bottom: 6rem;
+    bottom: 5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .swipe-hint-icon {
+    font-size: 0.9rem;
+  }
+
+  .swipe-hint-text {
+    font-size: 0.7rem;
   }
 }
 
@@ -846,12 +882,12 @@
   }
 
   .thumbnail-container {
-    max-width: 250px;
+    max-width: 200px;
   }
 
   .thumbnail-item {
-    width: 50px;
-    height: 70px;
+    width: 40px;
+    height: 56px;
   }
 
   .thumbnail-nav {
@@ -862,13 +898,84 @@
 }
 
 @media (max-width: 480px) {
+  .card-viewer-container {
+    height: 95vh;
+    max-height: 95vh;
+  }
+
+  .card-viewer-content {
+    padding: 0.5rem;
+    gap: 0.5rem;
+    height: calc(100% - 3rem);
+  }
+
+  .card-viewer-image-container {
+    max-height: 20vh;
+  }
+
+  .card-viewer-image {
+    max-width: 150px;
+    max-height: 18vh;
+  }
+
+  .card-viewer-name {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .card-viewer-info {
+    max-height: 50vh;
+    gap: 0.25rem;
+  }
+
+  .card-viewer-info > div {
+    padding: 0.4rem;
+    margin-bottom: 0.125rem;
+  }
+
   .thumbnail-container {
-    max-width: 200px;
+    max-width: 180px;
   }
 
   .thumbnail-item {
-    width: 45px;
-    height: 63px;
+    width: 36px;
+    height: 50px;
+  }
+
+  .thumbnail-nav {
+    width: 24px;
+    height: 24px;
+    font-size: 0.9rem;
+  }
+
+  .nav-arrow {
+    width: 24px;
+    height: 24px;
+    font-size: 1rem;
+  }
+
+  .position-text {
+    font-size: 0.7rem;
+  }
+
+  .card-viewer-nav {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .swipe-hint {
+    bottom: 4rem;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .swipe-hint-icon {
+    font-size: 0.8rem;
+  }
+
+  .swipe-hint-text {
+    font-size: 0.65rem;
   }
 }
 
