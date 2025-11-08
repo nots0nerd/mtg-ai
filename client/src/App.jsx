@@ -30,6 +30,7 @@ function App() {
   const [viewerIndex, setViewerIndex] = useState(0);
   const [quickViewCard, setQuickViewCard] = useState(null);
   const [quickViewPosition, setQuickViewPosition] = useState({ x: 0, y: 0 });
+  const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
 
   // Handle card click to open viewer
   const handleCardClick = (card, index) => {
@@ -54,6 +55,107 @@ function App() {
   const handleCardLeave = () => {
     setQuickViewCard(null);
   };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't handle keyboard shortcuts when typing in search input
+      if (e.target.tagName === 'INPUT' && e.target.type === 'text') {
+        return;
+      }
+
+      // "/" to focus search bar
+      if (e.key === '/' && !viewerOpen) {
+        e.preventDefault();
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+          searchInput.focus();
+        }
+        return;
+      }
+
+      // ESC to close viewer or quick view
+      if (e.key === 'Escape') {
+        if (viewerOpen) {
+          setViewerOpen(false);
+        } else if (quickViewCard) {
+          setQuickViewCard(null);
+        }
+        return;
+      }
+
+      // Only handle arrow keys when there are cards displayed and not in viewer
+      if (!displayCards.length || viewerOpen || loading) return;
+
+      const totalCards = displayCards.length;
+      const cardsPerRow = window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 3 : 2;
+      const totalRows = Math.ceil(totalCards / cardsPerRow);
+
+      switch (e.key) {
+        case 'ArrowRight':
+          e.preventDefault();
+          setSelectedCardIndex(prev => {
+            const next = Math.min(prev + 1, totalCards - 1);
+            // Scroll selected card into view
+            const selectedCard = document.querySelector(`[data-card-index="${next}"]`);
+            if (selectedCard) {
+              selectedCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            return next;
+          });
+          break;
+
+        case 'ArrowLeft':
+          e.preventDefault();
+          setSelectedCardIndex(prev => {
+            const next = Math.max(prev - 1, 0);
+            const selectedCard = document.querySelector(`[data-card-index="${next}"]`);
+            if (selectedCard) {
+              selectedCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            return next;
+          });
+          break;
+
+        case 'ArrowDown':
+          e.preventDefault();
+          setSelectedCardIndex(prev => {
+            const next = Math.min(prev + cardsPerRow, totalCards - 1);
+            const selectedCard = document.querySelector(`[data-card-index="${next}"]`);
+            if (selectedCard) {
+              selectedCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            return next;
+          });
+          break;
+
+        case 'ArrowUp':
+          e.preventDefault();
+          setSelectedCardIndex(prev => {
+            const next = Math.max(prev - cardsPerRow, 0);
+            const selectedCard = document.querySelector(`[data-card-index="${next}"]`);
+            if (selectedCard) {
+              selectedCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            return next;
+          });
+          break;
+
+        case 'Enter':
+          e.preventDefault();
+          if (selectedCardIndex >= 0 && selectedCardIndex < totalCards) {
+            handleCardClick(displayCards[selectedCardIndex], selectedCardIndex);
+          }
+          break;
+
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [displayCards, viewerOpen, loading, selectedCardIndex, quickViewCard]);
 
   const handleSearch = async (pageNum = 1) => {
     const searchPrompt = prompt.trim();
@@ -705,7 +807,8 @@ function App() {
                 {displayCards.map((card, index) => (
                   <motion.div
                     key={card.id}
-                    className="card-item"
+                    data-card-index={index}
+                    className={`card-item ${selectedCardIndex === index ? 'keyboard-selected' : ''}`}
                     onClick={(e) => {
                       console.log('🔵🔵🔵 CARD CLICKED!', card.name, index);
                       e.preventDefault();
@@ -718,7 +821,10 @@ function App() {
                       e.stopPropagation();
                       handleCardClick(card, index);
                     }}
-                    onMouseEnter={(e) => handleCardHover(card, e)}
+                    onMouseEnter={(e) => {
+                      handleCardHover(card, e);
+                      setSelectedCardIndex(index);
+                    }}
                     onMouseLeave={handleCardLeave}
                     whileHover={{
                       scale: 1.05,

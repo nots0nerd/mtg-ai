@@ -923,3 +923,75 @@
     width: 40%;
   }
 }
+
+/* Keyboard Navigation */
+.card-item.keyboard-selected {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.8), 0 12px 32px rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-4px);
+}
+
+.card-item.keyboard-selected .card-image-container::before {
+  opacity: 0.3;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(147, 197, 253, 0.3));
+}
+
+/* Keyboard shortcuts hint */
+.keyboard-hint {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(31, 41, 55, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.keyboard-hint.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.keyboard-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shortcut-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.7rem;
+}
+
+.shortcut-key {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+/* Mobile responsive for keyboard navigation */
+@media (max-width: 768px) {
+  .keyboard-hint {
+    bottom: 15px;
+    right: 15px;
+    padding: 8px;
+    font-size: 0.7rem;
+  }
+
+  .shortcut-item {
+    font-size: 0.65rem;
+  }
+}
