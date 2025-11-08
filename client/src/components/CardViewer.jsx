@@ -364,6 +364,80 @@ function CardViewer({ cards, initialIndex, onClose }) {
             </div>
           </motion.div>
 
+          {/* Thumbnail Navigation */}
+          <div className="card-viewer-thumbnails">
+            <motion.button
+              className="thumbnail-nav thumbnail-nav-prev"
+              onClick={() => {
+                const startIndex = Math.max(0, currentIndex - 2);
+                const thumbnails = cards.slice(startIndex, startIndex + 5);
+                // Scroll to show more thumbnails on the left if possible
+                if (startIndex > 0) {
+                  handlePrevious();
+                }
+              }}
+              disabled={currentIndex === 0}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              ‹
+            </motion.button>
+
+            <div className="thumbnail-container">
+              {(() => {
+                const startIndex = Math.max(0, Math.min(currentIndex - 2, cards.length - 5));
+                const visibleThumbnails = cards.slice(startIndex, startIndex + 5);
+
+                return visibleThumbnails.map((card, idx) => {
+                  const actualIndex = startIndex + idx;
+                  const isActive = actualIndex === currentIndex;
+
+                  return (
+                    <motion.div
+                      key={`thumb-${card.id}-${actualIndex}`}
+                      className={`thumbnail-item ${isActive ? 'active' : ''}`}
+                      onClick={() => {
+                        setCurrentIndex(actualIndex);
+                        setFlippedCardId(null);
+                      }}
+                      whileHover={{ scale: 1.1, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: idx * 0.05 }}
+                    >
+                      <img
+                        src={card.image_uris?.small || card.image_uris?.normal}
+                        alt={card.name}
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/75x105/1a1a1a/666?text=No+Image';
+                        }}
+                      />
+                      {isActive && <div className="thumbnail-indicator" />}
+                    </motion.div>
+                  );
+                });
+              })()}
+            </div>
+
+            <motion.button
+              className="thumbnail-nav thumbnail-nav-next"
+              onClick={() => {
+                const endIndex = Math.min(cards.length, currentIndex + 3);
+                const thumbnails = cards.slice(Math.max(0, endIndex - 5), endIndex);
+                // Scroll to show more thumbnails on the right if possible
+                if (endIndex < cards.length) {
+                  handleNext();
+                }
+              }}
+              disabled={currentIndex === cards.length - 1}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              ›
+            </motion.button>
+          </div>
+
           {/* Navigation Arrows */}
           <motion.button
             className="card-viewer-nav card-viewer-nav-prev"
