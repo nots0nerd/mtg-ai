@@ -795,3 +795,131 @@
     max-width: 150px;
   }
 }
+
+/* Loading Skeleton Screens */
+.loading-skeleton {
+  width: 100%;
+}
+
+.skeleton-card {
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.skeleton-image-container {
+  aspect-ratio: 5/7;
+  background: rgba(17, 24, 39, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(55, 65, 81, 0.8) 25%, rgba(75, 85, 99, 0.8) 50%, rgba(55, 65, 81, 0.8) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-info {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-mana {
+  height: 1.25rem;
+  width: 60%;
+  border-radius: 4px;
+}
+
+.skeleton-name {
+  height: 1.5rem;
+  width: 90%;
+  border-radius: 4px;
+}
+
+.skeleton-type {
+  height: 1.125rem;
+  width: 75%;
+  border-radius: 4px;
+}
+
+.skeleton-set {
+  height: 1rem;
+  width: 50%;
+  border-radius: 4px;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, rgba(55, 65, 81, 0.8) 25%, rgba(75, 85, 99, 0.8) 50%, rgba(55, 65, 81, 0.8) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Mobile responsive for skeleton */
+@media (max-width: 1024px) {
+  .skeleton-info {
+    padding: 0.75rem;
+  }
+
+  .skeleton-mana {
+    height: 1.125rem;
+    width: 55%;
+  }
+
+  .skeleton-name {
+    height: 1.375rem;
+    width: 85%;
+  }
+
+  .skeleton-type {
+    height: 1rem;
+    width: 70%;
+  }
+
+  .skeleton-set {
+    height: 0.875rem;
+    width: 45%;
+  }
+}
+
+@media (max-width: 768px) {
+  .skeleton-info {
+    padding: 0.5rem;
+  }
+
+  .skeleton-mana {
+    height: 1rem;
+    width: 50%;
+  }
+
+  .skeleton-name {
+    height: 1.25rem;
+    width: 80%;
+  }
+
+  .skeleton-type {
+    height: 0.875rem;
+    width: 65%;
+  }
+
+  .skeleton-set {
+    height: 0.75rem;
+    width: 40%;
+  }
+}

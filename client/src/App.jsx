@@ -581,21 +581,44 @@ function App() {
           </motion.div>
         </motion.div>
 
-        {/* Loading Spinner */}
+        {/* Loading Skeleton */}
         <AnimatePresence>
           {loading && (
-            <motion.div 
-              className="loading"
+            <motion.div
+              className="loading-skeleton"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <motion.div 
-                className="spinner"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              />
+              <div className="results-grid">
+                {Array.from({ length: 20 }, (_, index) => (
+                  <motion.div
+                    key={`skeleton-${index}`}
+                    className="skeleton-card"
+                    initial={{ opacity: 0, y: 30, scale: 0.85 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.85, y: -20 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: index * 0.05,
+                      type: "spring",
+                      stiffness: 100,
+                      damping: 15
+                    }}
+                  >
+                    <div className="skeleton-image-container">
+                      <div className="skeleton-image skeleton-shimmer" />
+                    </div>
+                    <div className="skeleton-info">
+                      <div className="skeleton-mana skeleton-shimmer" />
+                      <div className="skeleton-name skeleton-shimmer" />
+                      <div className="skeleton-type skeleton-shimmer" />
+                      <div className="skeleton-set skeleton-shimmer" />
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
