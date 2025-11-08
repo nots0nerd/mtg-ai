@@ -522,6 +522,45 @@ function App() {
               {loading ? 'Searching...' : 'Search'}
             </motion.button>
           </div>
+
+          {/* Popular Query Chips */}
+          <motion.div
+            className="popular-queries"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
+          >
+            <div className="chips-container">
+              {[
+                { query: "creatures with flying", icon: "🦅" },
+                { query: "legendary artifacts", icon: "👑" },
+                { query: "blue enchantments", icon: "🔵" },
+                { query: "red dragons", icon: "🐲" },
+                { query: "white angels", icon: "👼" },
+                { query: "black zombies", icon: "🧟" },
+                { query: "green beasts", icon: "🌿" },
+                { query: "instants that draw cards", icon: "✨" }
+              ].map((chip, index) => (
+                <motion.button
+                  key={chip.query}
+                  className="query-chip"
+                  onClick={() => {
+                    setPrompt(chip.query);
+                    handleSearchClick();
+                  }}
+                  disabled={loading}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <span className="chip-icon">{chip.icon}</span>
+                  <span className="chip-text">{chip.query}</span>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* Loading Spinner */}

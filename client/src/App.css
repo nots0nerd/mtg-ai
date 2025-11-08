@@ -104,6 +104,58 @@
   cursor: not-allowed;
 }
 
+/* Popular Query Chips */
+.popular-queries {
+  margin-top: 1rem;
+}
+
+.chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.query-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: #e4e6eb;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.query-chip:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.query-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chip-icon {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chip-text {
+  white-space: nowrap;
+}
+
 .loading {
   display: flex;
   justify-content: center;
@@ -520,6 +572,19 @@
 @media (max-width: 768px) {
   .title {
     font-size: 2rem;
+  }
+
+  .chips-container {
+    gap: 0.5rem;
+  }
+
+  .query-chip {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .chip-icon {
+    font-size: 0.875rem;
   }
 
   .results-grid {
