@@ -29,6 +29,64 @@ function App() {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
   const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+
+  // Search suggestions data
+  const searchSuggestions = [
+    // Abilities
+    "flying", "trample", "haste", "first strike", "double strike", "vigilance", "lifelink", "deathtouch",
+    "indestructible", "hexproof", "ward", "menace", "reach", "flash",
+
+    // Card types
+    "creature", "instant", "sorcery", "artifact", "enchantment", "planeswalker", "land", "legendary",
+
+    // Colors
+    "white", "blue", "black", "red", "green", "colorless", "multicolored",
+
+    // Common queries
+    "legendary creatures", "artifact creatures", "planeswalkers", "basic lands",
+    "creatures with flying", "spells that draw cards", "removal spells", "counterspells",
+    "life gain", "card advantage", "board wipe", "tutors",
+
+    // Power/Toughness
+    "1/1 creatures", "2/2 creatures", "3/3 creatures", "power 4 or greater", "toughness 4 or greater",
+
+    // Mana costs
+    "mana value 1", "mana value 2", "mana value 3", "mana value 4", "mana value 5",
+    "free spells", "cheap creatures",
+
+    // Sets (popular ones)
+    "innistrad", "zendikar", "ravnica", "dominaria", "theros", "ixalan", "kaladesh",
+    "amonkhet", "core set 2023", "wilds of eldraine",
+
+    // Rarity
+    "mythic rare", "rare", "uncommon", "common",
+
+    // Keywords
+    "flashback", "kicker", "surveil", "scry", "proliferate", "fight", "exert"
+  ];
+
+  // Filter suggestions based on current input
+  const getFilteredSuggestions = () => {
+    if (!prompt.trim() || prompt.length < 2) return [];
+
+    const query = prompt.toLowerCase();
+    return searchSuggestions
+      .filter(suggestion =>
+        suggestion.toLowerCase().includes(query) ||
+        suggestion.toLowerCase().startsWith(query)
+      )
+      .slice(0, 8); // Limit to 8 suggestions
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionSelect = (suggestion) => {
+    setPrompt(suggestion);
+    setShowSuggestions(false);
+    setSelectedSuggestionIndex(-1);
+    handleSearchClick();
+  };
 
   // Handle card click to open viewer
   const handleCardClick = (card, index) => {
@@ -63,6 +121,40 @@ function App() {
           setViewerOpen(false);
         }
         return;
+      }
+
+      // Handle suggestions navigation first
+      if (showSuggestions && getFilteredSuggestions().length > 0) {
+        const suggestions = getFilteredSuggestions();
+
+        switch (e.key) {
+          case 'ArrowDown':
+            e.preventDefault();
+            setSelectedSuggestionIndex(prev =>
+              prev < suggestions.length - 1 ? prev + 1 : 0
+            );
+            return;
+
+          case 'ArrowUp':
+            e.preventDefault();
+            setSelectedSuggestionIndex(prev =>
+              prev > 0 ? prev - 1 : suggestions.length - 1
+            );
+            return;
+
+          case 'Enter':
+            e.preventDefault();
+            if (selectedSuggestionIndex >= 0) {
+              handleSuggestionSelect(suggestions[selectedSuggestionIndex]);
+            }
+            return;
+
+          case 'Escape':
+            e.preventDefault();
+            setShowSuggestions(false);
+            setSelectedSuggestionIndex(-1);
+            return;
+        }
       }
 
       // Only handle arrow keys when there are cards displayed and not in viewer
@@ -604,7 +696,20 @@ function App() {
             <motion.input
               type="text"
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={(e) => {
+                setPrompt(e.target.value);
+                setShowSuggestions(true);
+                setSelectedSuggestionIndex(-1);
+              }}
+              onFocus={() => {
+                if (prompt.length >= 2) {
+                  setShowSuggestions(true);
+                }
+              }}
+              onBlur={() => {
+                // Delay hiding suggestions to allow click events
+                setTimeout(() => setShowSuggestions(false), 150);
+              }}
               onKeyPress={handleKeyPress}
               placeholder="e.g., creatures with flying"
               className="search-input"
@@ -623,6 +728,35 @@ function App() {
               {loading ? 'Searching...' : 'Search'}
             </motion.button>
           </div>
+
+          {/* Search Suggestions Dropdown */}
+          <AnimatePresence>
+            {showSuggestions && getFilteredSuggestions().length > 0 && (
+              <motion.div
+                className="search-suggestions"
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.15 }}
+              >
+                {getFilteredSuggestions().map((suggestion, index) => (
+                  <motion.div
+                    key={suggestion}
+                    className={`suggestion-item ${selectedSuggestionIndex === index ? 'selected' : ''}`}
+                    onClick={() => handleSuggestionSelect(suggestion)}
+                    onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    whileHover={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
+                  >
+                    <span className="suggestion-text">{suggestion}</span>
+                    <span className="suggestion-icon">🔍</span>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Popular Query Chips */}
           <motion.div
