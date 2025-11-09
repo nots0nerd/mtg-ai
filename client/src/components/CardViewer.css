@@ -675,13 +675,17 @@
   .card-viewer-content {
     gap: 2rem;
     padding: 2rem;
+    display: flex; /* Keep flex for tablet */
+    align-items: flex-start;
   }
 
   .card-image {
     width: 300px;
+    flex-shrink: 0;
   }
 
   .card-details {
+    flex: 1;
     gap: 1rem;
   }
 
@@ -742,27 +746,18 @@
   .card-viewer-content {
     padding: 0.75rem;
     gap: 0.75rem;
-    display: flex;
-    flex-direction: column;
-    height: calc(100% - 4rem); /* Account for tabs and navigation */
+    display: block; /* Use normal block layout for mobile */
+    height: calc(100% - 4rem);
   }
 
   .card-image {
     width: 100%;
-    order: -1; /* Card image first on mobile */
+    text-align: center;
+    margin-bottom: 1rem;
   }
 
   .card-details {
-    gap: 1rem;
-    order: 1;
-  }
-
-  .card-actions {
-    order: 2;
-  }
-
-  .card-text {
-    order: 3;
+    width: 100%;
   }
 
   .card-viewer-image {
@@ -1047,25 +1042,17 @@
 
   .card-image {
     width: 100%;
-    order: -1;
+    text-align: center;
+    margin-bottom: 0.75rem;
   }
 
   .card-details {
-    gap: 0.75rem;
-    order: 1;
-  }
-
-  .card-actions {
-    order: 2;
-  }
-
-  .card-text {
-    order: 3;
+    width: 100%;
   }
 
   .card-viewer-image {
-    max-width: 150px;
-    max-height: 18vh;
+    max-width: 140px;
+    max-height: 16vh;
   }
 
   .card-text-title {
