@@ -94,63 +94,6 @@
   max-height: calc(100vh - 8rem); /* Limita l'altezza per evitare che vada oltre il viewport */
 }
 
-.card-tab-content {
-  flex: 1;
-  min-height: 0;
-}
-
-/* Tabs Navigation */
-.card-viewer-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: 1rem 0;
-  padding: 0.5rem;
-  background: rgba(17, 24, 39, 0.4);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.card-viewer-tab {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: rgba(17, 24, 39, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: #9ca3af;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  user-select: none;
-}
-
-.card-viewer-tab:hover {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.3);
-  color: #e4e6eb;
-}
-
-.card-viewer-tab.active {
-  background: rgba(59, 130, 246, 0.8);
-  border-color: rgba(59, 130, 246, 0.5);
-  color: white;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.tab-icon {
-  font-size: 1rem;
-}
-
-.tab-label {
-  font-weight: 500;
-}
 
 .card-details::-webkit-scrollbar {
   width: 6px;
