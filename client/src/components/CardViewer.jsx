@@ -274,7 +274,7 @@ function CardViewer({ cards, initialIndex, onClose }) {
                       {Object.entries(currentCard.legalities)
                         .sort(([a], [b]) => {
                           // Prioritize main formats
-                          const priority = ['standard', 'pioneer', 'modern', 'legacy', 'vintage', 'commander', 'pauper'];
+                          const priority = ['standard', 'pioneer', 'modern', 'legacy', 'vintage', 'commander', 'pauper', 'paupercommander'];
                           const aPriority = priority.indexOf(a.toLowerCase());
                           const bPriority = priority.indexOf(b.toLowerCase());
                           if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
@@ -282,12 +282,23 @@ function CardViewer({ cards, initialIndex, onClose }) {
                           if (bPriority !== -1) return 1;
                           return a.localeCompare(b);
                         })
-                        .map(([format, status]) => (
-                          <div key={format} className={`legality-item ${status.toLowerCase()}`}>
-                            <span className="format-name">{format.replace(/_/g, ' ').toUpperCase()}</span>
-                            <span className={`status status-${status.toLowerCase()}`}>{status}</span>
-                          </div>
-                        ))}
+                        .map(([format, status]) => {
+                          // Format the format name properly
+                          let displayName = format;
+                          if (format === 'paupercommander') {
+                            displayName = 'Pauper Commander';
+                          } else if (format.includes('_')) {
+                            displayName = format.replace(/_/g, ' ');
+                          }
+                          displayName = displayName.toUpperCase();
+
+                          return (
+                            <div key={format} className={`legality-item ${status.toLowerCase()}`}>
+                              <span className="format-name">{displayName}</span>
+                              <span className={`status status-${status.toLowerCase()}`}>{status}</span>
+                            </div>
+                          );
+                        })}
                     </div>
                   </div>
                 )}
