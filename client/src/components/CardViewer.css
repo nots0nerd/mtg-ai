@@ -1081,7 +1081,9 @@
   }
 
   /* Hide desktop elements on mobile */
-  .card-viewer-nav {
+  .card-viewer-nav,
+  .card-image,
+  .card-details {
     display: none !important;
   }
 }
