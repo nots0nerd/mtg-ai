@@ -92,6 +92,7 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
   max-height: calc(100vh - 8rem); /* Limita l'altezza per evitare che vada oltre il viewport */
+  padding-right: 1rem; /* Margine destro per evitare che il contenuto esca */
 }
 
 
