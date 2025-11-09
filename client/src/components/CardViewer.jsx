@@ -85,10 +85,27 @@ function CardViewer({ cards, initialIndex, onClose }) {
   
   // Get current face image (front or back)
   const getCardImage = () => {
-    if (canFlip && isFlipped) {
-      return currentCard.card_faces[1].image_uris?.normal || currentCard.card_faces[1].image_uris?.large || currentCard.image_uris?.normal;
+    // For double-faced cards
+    if (isDoubleFaced && currentCard.card_faces) {
+      if (canFlip && isFlipped) {
+        // Back face
+        return currentCard.card_faces[1]?.image_uris?.normal || 
+               currentCard.card_faces[1]?.image_uris?.large || 
+               currentCard.card_faces[1]?.image_uris?.png ||
+               currentCard.image_uris?.normal;
+      } else {
+        // Front face
+        return currentCard.card_faces[0]?.image_uris?.normal || 
+               currentCard.card_faces[0]?.image_uris?.large || 
+               currentCard.card_faces[0]?.image_uris?.png ||
+               currentCard.image_uris?.normal;
+      }
     }
-    return currentCard?.image_uris?.normal || currentCard?.image_uris?.large || currentCard?.image_uris?.png;
+    // For single-faced cards
+    return currentCard?.image_uris?.normal || 
+           currentCard?.image_uris?.large || 
+           currentCard?.image_uris?.png ||
+           currentCard?.card_faces?.[0]?.image_uris?.normal;
   };
 
   const getCardInfo = () => {
@@ -101,13 +118,23 @@ function CardViewer({ cards, initialIndex, onClose }) {
   };
 
   const cardInfo = getCardInfo();
+  const cardImageUrl = getCardImage();
 
   if (!currentCard) {
     console.warn('❌ CardViewer: No current card found');
     return null;
   }
 
-  console.log('✅ CardViewer rendering:', { currentIndex, totalCards: cards.length, cardName: currentCard.name });
+  console.log('✅ CardViewer rendering:', { 
+    currentIndex, 
+    totalCards: cards.length, 
+    cardName: currentCard.name,
+    cardImageUrl,
+    hasImageUris: !!currentCard.image_uris,
+    hasCardFaces: !!currentCard.card_faces,
+    isDoubleFaced,
+    isFlipped
+  });
 
   return (
     <AnimatePresence mode="wait">
@@ -396,14 +423,27 @@ function CardViewer({ cards, initialIndex, onClose }) {
                 animate={{ rotateY: canFlip && isFlipped ? 180 : 0 }}
                 transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
               >
-                <img
-                  src={getCardImage()}
-                  alt={cardInfo.name || currentCard.name}
-                  className="card-viewer-image"
-                  onClick={() => canFlip && handleCardClick(currentCard.id)}
-                  style={{ cursor: canFlip ? 'pointer' : 'default' }}
-                  loading="eager"
-                />
+                {cardImageUrl ? (
+                  <img
+                    src={cardImageUrl}
+                    alt={cardInfo.name || currentCard.name}
+                    className="card-viewer-image"
+                    onClick={() => canFlip && handleCardClick(currentCard.id)}
+                    style={{ cursor: canFlip ? 'pointer' : 'default' }}
+                    loading="eager"
+                    onError={(e) => {
+                      console.error('❌ Error loading card image:', cardImageUrl);
+                      e.target.style.display = 'none';
+                    }}
+                    onLoad={() => {
+                      console.log('✅ Card image loaded:', cardImageUrl);
+                    }}
+                  />
+                ) : (
+                  <div className="card-image-placeholder">
+                    <div className="placeholder-text">No image available</div>
+                  </div>
+                )}
               </motion.div>
               {canFlip && (
                 <div className="flip-hint-mobile">Tap to flip</div>

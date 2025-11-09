@@ -825,29 +825,64 @@
     text-align: center;
     background: #0f172a;
     flex-shrink: 0;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .card-image-mobile .card-image-wrapper {
     max-width: 100%;
+    width: 100%;
     margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
   }
 
-  .card-viewer-image {
-    max-width: 240px;
+  .card-image-mobile .card-viewer-image {
+    max-width: 280px;
     width: 100%;
+    min-width: 200px;
+    max-height: 400px;
     height: auto;
+    min-height: 280px;
     aspect-ratio: 5/7;
     object-fit: contain;
+    object-position: center;
     border-radius: 12px;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     margin: 0 auto;
-    display: block;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: transparent;
+    z-index: 1;
   }
 
   .flip-hint-mobile {
     margin-top: 0.75rem;
     font-size: 0.75rem;
     color: #9ca3af;
+    text-align: center;
+  }
+
+  .card-image-placeholder {
+    width: 100%;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+  }
+
+  .placeholder-text {
+    color: #9ca3af;
+    font-size: 0.875rem;
     text-align: center;
   }
 
