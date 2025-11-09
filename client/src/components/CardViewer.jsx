@@ -25,13 +25,27 @@ function CardViewer({ cards, initialIndex, onClose }) {
     }
   };
   
-  // Enhanced swipe detection for mobile
+  // Enhanced swipe detection for mobile - works even during vertical scroll
   const handleDragEnd = (event, info) => {
-    const velocityThreshold = 500; // Minimum velocity for swipe
-    const distanceThreshold = 75; // Minimum distance for swipe
+    const velocityThreshold = 300; // Minimum velocity for swipe (lowered for better sensitivity)
+    const distanceThreshold = 50; // Minimum distance for swipe (lowered for better sensitivity)
+    const horizontalRatio = 1.5; // Horizontal movement must be 1.5x vertical movement
+
+    const horizontalDistance = Math.abs(info.offset.x);
+    const verticalDistance = Math.abs(info.offset.y);
+    const horizontalVelocity = Math.abs(info.velocity.x);
+    const verticalVelocity = Math.abs(info.velocity.y);
+
+    // Only trigger horizontal swipe if horizontal movement/velocity is dominant
+    const isHorizontalSwipe = horizontalDistance > verticalDistance * horizontalRatio || 
+                               horizontalVelocity > verticalVelocity * horizontalRatio;
+
+    if (!isHorizontalSwipe) {
+      return; // Ignore if it's primarily a vertical scroll
+    }
 
     // Check velocity-based swipe (fast swipe)
-    if (Math.abs(info.velocity.x) > velocityThreshold) {
+    if (horizontalVelocity > velocityThreshold) {
       if (info.velocity.x > 0 && currentIndex > 0) {
         handlePrevious();
         return;
@@ -42,7 +56,7 @@ function CardViewer({ cards, initialIndex, onClose }) {
     }
 
     // Check distance-based swipe (slow swipe)
-    if (Math.abs(info.offset.x) > distanceThreshold) {
+    if (horizontalDistance > distanceThreshold) {
       if (info.offset.x > 0 && currentIndex > 0) {
         handlePrevious();
       } else if (info.offset.x < 0 && currentIndex < cards.length - 1) {
@@ -176,7 +190,7 @@ function CardViewer({ cards, initialIndex, onClose }) {
           </div>
 
 
-          {/* Main Content - Desktop Layout */}
+          {/* Main Content - Desktop & Mobile Layout */}
           <motion.div
             className="card-viewer-content"
             drag="x"
@@ -416,42 +430,42 @@ function CardViewer({ cards, initialIndex, onClose }) {
               </div>
             </div>
 
-            {/* Mobile: Card Image Section - Top on mobile */}
-            <div className="card-image-mobile">
-              <motion.div
-                className={`card-image-wrapper ${canFlip ? 'double-faced' : ''}`}
-                animate={{ rotateY: canFlip && isFlipped ? 180 : 0 }}
-                transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
-              >
-                {cardImageUrl ? (
-                  <img
-                    src={cardImageUrl}
-                    alt={cardInfo.name || currentCard.name}
-                    className="card-viewer-image"
-                    onClick={() => canFlip && handleCardClick(currentCard.id)}
-                    style={{ cursor: canFlip ? 'pointer' : 'default' }}
-                    loading="eager"
-                    onError={(e) => {
-                      console.error('❌ Error loading card image:', cardImageUrl);
-                      e.target.style.display = 'none';
-                    }}
-                    onLoad={() => {
-                      console.log('✅ Card image loaded:', cardImageUrl);
-                    }}
-                  />
-                ) : (
-                  <div className="card-image-placeholder">
-                    <div className="placeholder-text">No image available</div>
-                  </div>
+            {/* Mobile: Single Scrollable Container - Everything scrolls together */}
+            <div className="card-viewer-mobile-wrapper">
+              {/* Card Image - Scrolls with content */}
+              <div className="card-image-mobile">
+                <motion.div
+                  className={`card-image-wrapper ${canFlip ? 'double-faced' : ''}`}
+                  animate={{ rotateY: canFlip && isFlipped ? 180 : 0 }}
+                  transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
+                >
+                  {cardImageUrl ? (
+                    <img
+                      src={cardImageUrl}
+                      alt={cardInfo.name || currentCard.name}
+                      className="card-viewer-image"
+                      onClick={() => canFlip && handleCardClick(currentCard.id)}
+                      style={{ cursor: canFlip ? 'pointer' : 'default' }}
+                      loading="eager"
+                      onError={(e) => {
+                        console.error('❌ Error loading card image:', cardImageUrl);
+                        e.target.style.display = 'none';
+                      }}
+                      onLoad={() => {
+                        console.log('✅ Card image loaded:', cardImageUrl);
+                      }}
+                    />
+                  ) : (
+                    <div className="card-image-placeholder">
+                      <div className="placeholder-text">No image available</div>
+                    </div>
+                  )}
+                </motion.div>
+                {canFlip && (
+                  <div className="flip-hint-mobile">Tap to flip</div>
                 )}
-              </motion.div>
-              {canFlip && (
-                <div className="flip-hint-mobile">Tap to flip</div>
-              )}
-            </div>
+              </div>
 
-            {/* Card Details Section - Scrollable content below image */}
-            <div className="card-details-mobile">
               {/* Navigation Indicator */}
               <div className="card-nav-mobile">
                 <motion.button
@@ -475,7 +489,7 @@ function CardViewer({ cards, initialIndex, onClose }) {
                 </motion.button>
               </div>
 
-              {/* Scrollable Content Container */}
+              {/* All Content - Scrolls together */}
               <div className="card-content-mobile">
                 {/* Card Name */}
                 <div className="detail-section">
@@ -666,6 +680,7 @@ function CardViewer({ cards, initialIndex, onClose }) {
                 )}
               </div>
             </div>
+            {/* End Mobile Wrapper */}
 
             {/* Desktop Navigation Arrows */}
             <motion.button

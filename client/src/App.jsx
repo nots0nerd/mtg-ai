@@ -700,6 +700,22 @@ function App() {
     );
   }
 
+  // Helper function to get card image URL
+  const getCardImageUrl = (card) => {
+    // For double-faced cards, use the front face image
+    if (card.card_faces && card.card_faces.length > 0) {
+      return card.card_faces[0]?.image_uris?.normal || 
+             card.card_faces[0]?.image_uris?.small || 
+             card.card_faces[0]?.image_uris?.large ||
+             card.image_uris?.normal;
+    }
+    // For single-faced cards
+    return card.image_uris?.normal || 
+           card.image_uris?.small || 
+           card.image_uris?.large ||
+           card.image_uris?.png;
+  };
+
   return (
     <div className="app">
       <div className="container">
@@ -1006,14 +1022,19 @@ function App() {
                     style={{ cursor: 'pointer', position: 'relative' }}
                   >
                     {/* Card Image */}
-                    {card.image_uris?.normal && (
+                    {getCardImageUrl(card) && (
                       <div className="card-image-container">
                         <img
-                          src={card.image_uris.normal}
+                          src={getCardImageUrl(card)}
                           alt={card.name}
                           className="card-image"
+                          loading="lazy"
                           onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/300x420/1a1a1a/666?text=No+Image';
+                            console.error('❌ Error loading card image for:', card.name, getCardImageUrl(card));
+                            e.target.style.display = 'none';
+                          }}
+                          onLoad={() => {
+                            console.log('✅ Card image loaded for:', card.name);
                           }}
                         />
                       </div>

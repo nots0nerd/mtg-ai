@@ -779,6 +779,16 @@
     overflow: hidden;
   }
 
+  /* Mobile: Single scrollable wrapper - everything scrolls together */
+  .card-viewer-mobile-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+  }
+
   /* Progress Bar */
   .card-viewer-progress {
     width: 80%;
@@ -818,14 +828,12 @@
     z-index: 100;
   }
 
-  /* Card Image Section */
+  /* Card Image Section - Scrolls with content */
   .card-image-mobile {
     width: 100%;
     padding: 1.5rem 1rem;
     text-align: center;
     background: #0f172a;
-    flex-shrink: 0;
-    min-height: 200px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -839,7 +847,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
   }
 
   .card-image-mobile .card-viewer-image {
@@ -886,17 +893,7 @@
     text-align: center;
   }
 
-  /* Card Details Section */
-  .card-details-mobile {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: #0f172a;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  /* Navigation */
+  /* Navigation - Part of scrollable content */
   .card-nav-mobile {
     display: flex;
     justify-content: space-between;
@@ -905,7 +902,7 @@
     background: rgba(15, 23, 42, 0.95);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    flex-shrink: 0;
+    width: 100%;
   }
 
   .nav-btn {
@@ -940,24 +937,24 @@
     letter-spacing: 0.5px;
   }
 
-  /* Scrollable Content */
+  /* Content - Part of scrollable wrapper */
   .card-content-mobile {
-    flex: 1;
-    overflow-y: auto;
+    width: 100%;
     padding: 1rem;
     padding-bottom: 2rem;
-    -webkit-overflow-scrolling: touch;
+    background: #0f172a;
   }
 
-  .card-content-mobile::-webkit-scrollbar {
+  /* Scrollbar for mobile wrapper */
+  .card-viewer-mobile-wrapper::-webkit-scrollbar {
     width: 4px;
   }
 
-  .card-content-mobile::-webkit-scrollbar-track {
+  .card-viewer-mobile-wrapper::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  .card-content-mobile::-webkit-scrollbar-thumb {
+  .card-viewer-mobile-wrapper::-webkit-scrollbar-thumb {
     background: rgba(59, 130, 246, 0.3);
     border-radius: 2px;
   }
@@ -1121,11 +1118,22 @@
   .card-details {
     display: none !important;
   }
+
+  /* Ensure mobile wrapper is visible and scrollable */
+  .card-viewer-mobile-wrapper {
+    display: flex !important;
+  }
+
+  /* Hide card-details-mobile if it exists as separate element */
+  .card-details-mobile {
+    display: none !important;
+  }
 }
 
 /* Desktop Layout - Show desktop elements */
 @media (min-width: 769px) {
   /* Hide mobile elements on desktop */
+  .card-viewer-mobile-wrapper,
   .card-image-mobile,
   .card-details-mobile,
   .card-nav-mobile,
