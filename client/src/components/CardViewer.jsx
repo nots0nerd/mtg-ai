@@ -246,224 +246,159 @@ function CardViewer({ cards, initialIndex, onClose }) {
                 </motion.button>
               </div>
 
-              {/* Mobile Tabs */}
-              <div className="card-viewer-tabs">
-                {[
-                  { id: 'details', label: 'Details', icon: '📋' },
-                  { id: 'legality', label: 'Legality', icon: '⚖️' },
-                  { id: 'price', label: 'Price', icon: '💰' },
-                  { id: 'rulings', label: 'Rulings', icon: '📖' }
-                ].map(tab => (
-                  <motion.button
-                    key={tab.id}
-                    className={`card-viewer-tab ${activeTab === tab.id ? 'active' : ''}`}
-                    onClick={() => setActiveTab(tab.id)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <span className="tab-icon">{tab.icon}</span>
-                    <span className="tab-label">{tab.label}</span>
-                  </motion.button>
-                ))}
-              </div>
+              {/* Card Content - Scrollable */}
+              <div className="card-content">
+                {/* Card Oracle Text */}
+                <div className="card-text-box">
+                  {cardInfo.oracle_text && (
+                    <div className="card-text-oracle">
+                      <div dangerouslySetInnerHTML={{
+                        __html: cardInfo.oracle_text.replace(/\n/g, '<br />')
+                      }} />
+                    </div>
+                  )}
 
-              {/* Tab Content - Scrollable */}
-              <div className="card-tab-content">
-                <AnimatePresence mode="wait">
-                  {activeTab === 'details' && (
-                    <motion.div
-                      key={`details-${currentCard.id}`}
-                      className="tab-content"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className="card-text">
-                        <div className="card-text-box">
-                          {cardInfo.oracle_text && (
-                            <div className="card-text-oracle">
-                              <div dangerouslySetInnerHTML={{
-                                __html: cardInfo.oracle_text.replace(/\n/g, '<br />')
-                              }} />
+                  {cardInfo.flavor_text && (
+                    <div className="card-text-flavor">
+                      <div className="italic">{cardInfo.flavor_text}</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Card Stats */}
+                {(cardInfo.power !== undefined && cardInfo.toughness !== undefined) && (
+                  <div className="card-text-stats">
+                    {cardInfo.power}/{cardInfo.toughness}
+                  </div>
+                )}
+
+                {cardInfo.loyalty && (
+                  <div className="card-text-loyalty">
+                    Loyalty: {cardInfo.loyalty}
+                  </div>
+                )}
+
+                {/* Artist */}
+                {cardInfo.artist && (
+                  <p className="card-text-artist">
+                    Illustrated by {cardInfo.artist}
+                  </p>
+                )}
+
+                {/* Set and Rarity */}
+                <div className="card-detail-row">
+                  {currentCard.set_name && (
+                    <div className="card-detail-item">
+                      <span className="label">Set:</span>
+                      <span className="value">{currentCard.set_name}</span>
+                    </div>
+                  )}
+
+                  {currentCard.rarity && (
+                    <div className="card-detail-item">
+                      <span className="label">Rarity:</span>
+                      <span className={`value rarity-${currentCard.rarity}`}>{currentCard.rarity}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Format Legality */}
+                {currentCard.legalities && (
+                  <div className="card-legality-section">
+                    <h4>Format Legality</h4>
+                    <div className="legality-grid">
+                      {Object.entries(currentCard.legalities)
+                        .sort(([a], [b]) => {
+                          // Prioritize main formats
+                          const priority = ['standard', 'pioneer', 'modern', 'legacy', 'vintage', 'commander', 'pauper', 'paupercommander'];
+                          const aPriority = priority.indexOf(a.toLowerCase());
+                          const bPriority = priority.indexOf(b.toLowerCase());
+                          if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
+                          if (aPriority !== -1) return -1;
+                          if (bPriority !== -1) return 1;
+                          return a.localeCompare(b);
+                        })
+                        .map(([format, status]) => {
+                          // Format the format name properly
+                          let displayName = format;
+                          if (format === 'paupercommander') {
+                            displayName = 'Pauper Commander';
+                          } else if (format.includes('_')) {
+                            displayName = format.replace(/_/g, ' ');
+                          }
+                          displayName = displayName.toUpperCase();
+
+                          return (
+                            <div key={format} className={`legality-item ${status.toLowerCase()}`}>
+                              <span className="format-name">{displayName}</span>
+                              <span className={`status status-${status.toLowerCase()}`}>{status}</span>
                             </div>
-                          )}
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
 
-                          {cardInfo.flavor_text && (
-                            <div className="card-text-flavor">
-                              <div className="italic">{cardInfo.flavor_text}</div>
-                            </div>
-                          )}
-                        </div>
-
-                        {(cardInfo.power !== undefined && cardInfo.toughness !== undefined) && (
-                          <div className="card-text-stats">
-                            {cardInfo.power}/{cardInfo.toughness}
+                {/* Price Information */}
+                <div className="card-price-section">
+                  <h4>Price Information</h4>
+                  <table className="prints-table">
+                    <thead>
+                      <tr>
+                        <th>Prints</th>
+                        <th>USD</th>
+                        <th>EUR</th>
+                        <th>TIX</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="current">
+                        <td>
+                          <div className="print-info">
+                            <span className="set-name">{currentCard.set_name}</span>
+                            <span className="card-number">#{currentCard.collector_number}</span>
                           </div>
-                        )}
-
-                        {cardInfo.loyalty && (
-                          <div className="card-text-loyalty">
-                            Loyalty: {cardInfo.loyalty}
-                          </div>
-                        )}
-
-                        {cardInfo.artist && (
-                          <p className="card-text-artist">
-                            Illustrated by {cardInfo.artist}
-                          </p>
-                        )}
-
-                        {/* Set and Rarity */}
-                        <div className="card-detail-row">
-                          {currentCard.set_name && (
-                            <div className="card-detail-item">
-                              <span className="label">Set:</span>
-                              <span className="value">{currentCard.set_name}</span>
+                        </td>
+                        <td>{currentCard.usd ? `$${currentCard.usd}` : '-'}</td>
+                        <td>{currentCard.eur ? `€${currentCard.eur}` : '-'}</td>
+                        <td>{currentCard.tix || '-'}</td>
+                      </tr>
+                      {currentCard.usd_foil && (
+                        <tr>
+                          <td>
+                            <div className="print-info">
+                              <span className="set-name">{currentCard.set_name} (Foil)</span>
+                              <span className="card-number">#{currentCard.collector_number}</span>
                             </div>
-                          )}
+                          </td>
+                          <td>${currentCard.usd_foil}</td>
+                          <td>-</td>
+                          <td>-</td>
+                        </tr>
+                      )}
+                      {(!currentCard.usd && !currentCard.usd_foil && !currentCard.eur && !currentCard.tix) && (
+                        <tr>
+                          <td colSpan="4" className="no-price-data">Price information not available</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
 
-                          {currentCard.rarity && (
-                            <div className="card-detail-item">
-                              <span className="label">Rarity:</span>
-                              <span className={`value rarity-${currentCard.rarity}`}>{currentCard.rarity}</span>
-                            </div>
-                          )}
+                {/* Official Rulings */}
+                {currentCard.rulings && currentCard.rulings.length > 0 && (
+                  <div className="card-rulings-section">
+                    <h4>Official Rulings</h4>
+                    <div className="rulings-list">
+                      {currentCard.rulings.map((ruling, index) => (
+                        <div key={index} className="ruling-item">
+                          <div className="ruling-date">{ruling.published_at}</div>
+                          <div className="ruling-text">{ruling.comment}</div>
                         </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {activeTab === 'legality' && (
-                    <motion.div
-                      key={`legality-${currentCard.id}`}
-                      className="tab-content"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className="card-legality-section">
-                        <div className="legality-grid">
-                          {currentCard.legalities ? (
-                            Object.entries(currentCard.legalities)
-                              .sort(([a], [b]) => {
-                                // Prioritize main formats
-                                const priority = ['standard', 'pioneer', 'modern', 'legacy', 'vintage', 'commander', 'pauper', 'paupercommander'];
-                                const aPriority = priority.indexOf(a.toLowerCase());
-                                const bPriority = priority.indexOf(b.toLowerCase());
-                                if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
-                                if (aPriority !== -1) return -1;
-                                if (bPriority !== -1) return 1;
-                                return a.localeCompare(b);
-                              })
-                              .map(([format, status]) => {
-                                // Format the format name properly
-                                let displayName = format;
-                                if (format === 'paupercommander') {
-                                  displayName = 'Pauper Commander';
-                                } else if (format.includes('_')) {
-                                  displayName = format.replace(/_/g, ' ');
-                                }
-                                displayName = displayName.toUpperCase();
-
-                                return (
-                                  <div key={format} className={`legality-item ${status.toLowerCase()}`}>
-                                    <span className="format-name">{displayName}</span>
-                                    <span className={`status status-${status.toLowerCase()}`}>{status}</span>
-                                  </div>
-                                );
-                              })
-                          ) : (
-                            <div className="no-data">No legality information available</div>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {activeTab === 'price' && (
-                    <motion.div
-                      key={`price-${currentCard.id}`}
-                      className="tab-content"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className="card-price-section">
-                        <table className="prints-table">
-                          <thead>
-                            <tr>
-                              <th>Prints</th>
-                              <th>USD</th>
-                              <th>EUR</th>
-                              <th>TIX</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr className="current">
-                              <td>
-                                <div className="print-info">
-                                  <span className="set-name">{currentCard.set_name}</span>
-                                  <span className="card-number">#{currentCard.collector_number}</span>
-                                </div>
-                              </td>
-                              <td>{currentCard.usd ? `$${currentCard.usd}` : '-'}</td>
-                              <td>{currentCard.eur ? `€${currentCard.eur}` : '-'}</td>
-                              <td>{currentCard.tix || '-'}</td>
-                            </tr>
-                            {currentCard.usd_foil && (
-                              <tr>
-                                <td>
-                                  <div className="print-info">
-                                    <span className="set-name">{currentCard.set_name} (Foil)</span>
-                                    <span className="card-number">#{currentCard.collector_number}</span>
-                                  </div>
-                                </td>
-                                <td>${currentCard.usd_foil}</td>
-                                <td>-</td>
-                                <td>-</td>
-                              </tr>
-                            )}
-                            {(!currentCard.usd && !currentCard.usd_foil && !currentCard.eur && !currentCard.tix) && (
-                              <tr>
-                                <td colSpan="4" className="no-price-data">Price information not available</td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {activeTab === 'rulings' && (
-                    <motion.div
-                      key={`rulings-${currentCard.id}`}
-                      className="tab-content"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className="card-rulings-section">
-                        {currentCard.rulings && currentCard.rulings.length > 0 ? (
-                          <div className="rulings-list">
-                            {currentCard.rulings.map((ruling, index) => (
-                              <div key={index} className="ruling-item">
-                                <div className="ruling-date">{ruling.published_at}</div>
-                                <div className="ruling-text">{ruling.comment}</div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="no-data">No rulings available for this card</div>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
